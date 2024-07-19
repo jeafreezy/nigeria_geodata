@@ -9,7 +9,9 @@ Date:
 """
 
 from functools import cache
-from typing import Dict, List
+import json
+from math import ceil
+from typing import Dict, List, Optional, Union
 import httpx
 from nigeria_geodata.async_core import AsyncBaseDataSource
 from nigeria_geodata.config import Config
@@ -19,12 +21,15 @@ from nigeria_geodata.models.common import (
     EsriFeatureLayerBasicInfo,
     EsriFeatureServiceBasicInfo,
     EsriFeatureServiceDetailedInfo,
+    Feature,
+    FeatureCollection,
 )
-from nigeria_geodata.utils.common import in_jupyter_notebook
+from nigeria_geodata.utils.common import geojson_to_esri_type, in_jupyter_notebook
 import pandas as pd
 import tabulate
 
 from nigeria_geodata.utils.enums import NigeriaState
+from nigeria_geodata.utils.validators import validate_geojson
 
 
 # todo - automaticlly update version
@@ -103,15 +108,129 @@ class EsriFeatureService:
             table_data = [list(item.values()) for item in feature_layers]
             print(tabulate.tabulate(table_data, headers=headers, tablefmt="grid"))
 
-    def filter(self, state: NigeriaState, bbox: list):
+    @cache
+    def get_max_features(self, service_url: str) -> int:
+        params = {
+            "where": "FID > 0",
+            "groupByFieldsForStatistics": "",
+            "orderByFields": "",
+            "returnDistinctValues": "true",
+            "outStatistics": [
+                [
+                    {
+                        "statisticType": "count",
+                        "onStatisticField": "FID",
+                        "outStatisticFieldName": "COUNT",
+                    }
+                ]
+            ],
+            "f": "json",
+        }
+        res = make_request(service_url, params=params)
+        return res["features"][0]["attributes"]["COUNT"]
+
+    def filter(
+        self,
+        layer_id: int,  # a feature service can have many layers, allow them to pass the one they want here.
+        state: Optional[str] = None,
+        bbox: Optional[List[float]] = None,
+        aoi_geojson: Optional[Union[Feature, FeatureCollection]] = None,
+    ):
         """
         Filter the service across multiple layers.
         """
-        # validation - state name validity
-        # support multiple states?
-        # support multiple bbox?
+        # todo confirm that the service support query?
+        # get the total data in the layers
+        # get the maximum offset in the info so as to make the request in a loop
 
-        ...
+        # only one parameter can be provided, so this check is to ensure that.
+        params = sum([state is not None, bbox is not None, aoi_geojson is not None])
+
+        if params != 1:
+            raise ValueError(
+                "Exactly one parameter (state, bbox, or aoi_geojson) must be provided."
+            )
+
+        # State validation
+        # esri_bbox = None
+        # default to the esriGeometryEnvelope which is like the bbox.
+        # only change it when the user provide an aoi
+        geometryType = "esriGeometryEnvelope"
+
+        if state is not None:
+            if isinstance(state, str):
+                assert state in [
+                    x.value for x in NigeriaState
+                ], "The provided state is not a valid Nigeria State."
+
+        # BBox validation
+        if bbox is not None:
+            if isinstance(bbox, list):
+                if len(bbox) != 4 or not all(
+                    isinstance(coord, (int, float)) for coord in bbox
+                ):
+                    raise ValueError(
+                        "The provided bbox is invalid. It should be a list of four numeric values."
+                    )
+            # update esribbox
+
+        # GeoJSON validation
+        if aoi_geojson is not None:
+            if isinstance(aoi_geojson, (Feature, FeatureCollection)):
+                validate_geojson(aoi_geojson)
+            elif isinstance(aoi_geojson, str):
+                try:
+                    obj = json.loads(aoi_geojson)
+                    if obj.get("type") == "Feature":
+                        feature = Feature(**obj)
+                        validate_geojson(feature)
+                    elif obj.get("type") == "FeatureCollection":
+                        feature_collection = FeatureCollection(**obj)
+                        validate_geojson(feature_collection)
+                    else:
+                        raise ValueError("Invalid GeoJSON string.")
+                except (json.JSONDecodeError, ValueError) as e:
+                    raise ValueError(f"Invalid GeoJSON string: {e}")
+            else:
+                raise ValueError(
+                    "The provided GeoJSON must be a Feature, FeatureCollection, or a JSON string representing one of these."
+                )
+
+            # update geometry type
+            geometryType = geojson_to_esri_type(aoi_geojson.geometry.type)
+
+        # Layer_id validation
+        if not isinstance(layer_id, int):
+            raise ValueError(
+                "Invalid layer_id provided. layer_id must be a valid integer."
+            )
+
+        valid_layer_ids = {idx["id"] for idx in self.feature_service.layers}
+        if layer_id not in valid_layer_ids:
+            raise ValueError(
+                "Invalid layer_id provided. The provided layer_id is not available in this feature service."
+            )
+
+        # build the query
+        params = {
+            # get layer id from featureinfo ? because for now we're adding 1  to the query url
+            "where": "FID > 0",  # this is required. We're assuming all data has `FID` here.
+            "geometryType": geometryType,
+            "f": "geojson",  # check the supported formats to know the one to user, if geojson is not supported, then use json and convert to geojson
+        }
+        req_url = f"{self.feature_service.featureServerURL}/{layer_id}/query"
+        max_features = self.get_max_features(req_url)
+        if max_features == 0:
+            return []
+        result_list = []
+        resultOffset = 0
+        max_request = ceil(max_features / self.feature_service.maxRecordCount)
+        for _ in range(max_request):
+            params["resultOffset"] = resultOffset
+            features = make_request(req_url, params=params)["features"]
+            result_list.extend(features)
+            resultOffset += self.feature_service.maxRecordCount
+        return result_list
 
     def layers(self, show: bool = False):
         """
@@ -129,7 +248,7 @@ class EsriFeatureService:
         return "<EsriFeatureService>"
 
 
-class EsriRootFeatureServices:
+class EsriRootFeatureServer:
     def __init__(
         self, feature_services: List[EsriFeatureServiceBasicInfo], total_services: int
     ) -> None:
@@ -184,13 +303,14 @@ class EsriRootFeatureServices:
             fullExtent=response["fullExtent"],
             layers=response["layers"],
             tables=response["tables"],
+            featureServerURL=feature_server.url,
         )
         if show:
             self.__previewer(feature_service)
         return EsriFeatureService(feature_service)
 
     def __repr__(self) -> str:
-        return f"<EsriRootFeatureServices services={self.total_services}>"
+        return f"<EsriRootFeatureServer services={self.total_services}>"
 
 
 class Grid3(SyncBaseDataSource):
@@ -244,7 +364,7 @@ class Grid3(SyncBaseDataSource):
             print(tabulate.tabulate(table_data, headers=headers, tablefmt="grid"))
 
     @cache
-    def list_data(self) -> EsriRootFeatureServices:
+    def list_data(self) -> EsriRootFeatureServer:
         """List available datasets from the datasource"""
         feature_services = self.get_feature_services()
         total_services = len(feature_services) - 1
@@ -252,9 +372,9 @@ class Grid3(SyncBaseDataSource):
             f"There is a total {total_services} feature services with Nigeria geodata."
         )
         self.__previewer(feature_services)
-        return EsriRootFeatureServices(feature_services, total_services)
+        return EsriRootFeatureServer(feature_services, total_services)
 
-    def search(self, query: str, show: bool = False) -> EsriRootFeatureServices:
+    def search(self, query: str, show: bool = False) -> EsriRootFeatureServer:
         feature_servers = self.get_feature_services()
         # from the feature servers response do a string matching for the user query
         search_results = list(
@@ -267,10 +387,10 @@ class Grid3(SyncBaseDataSource):
 
         if show:
             self.__previewer(search_results)
-        return EsriRootFeatureServices(search_results, len(search_results))
+        return EsriRootFeatureServer(search_results, len(search_results))
 
     def __repr__(self) -> str:
-        return "<Grid3Datasource>"
+        return "<Grid3>"
 
 
 class AsyncGrid3(AsyncBaseDataSource):
@@ -299,7 +419,7 @@ if __name__ == "__main__":
     service = search_results.get(1)
     # this is a query to the feature service
     # at this point, you can query the data with state, lga and bounding box, or geojson
-    filtered_result = service.filter()
+    filtered_result = service.filter(layer_id=1, state="Lagos")
     # the result will be ResultSet that can be exported
 
     # all above can be piped into a single line of code

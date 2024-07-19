@@ -1,5 +1,5 @@
-from dataclasses import dataclass
-from typing import Any, List
+from dataclasses import dataclass, field
+from typing import List, Dict, Union, Any
 
 
 @dataclass(frozen=True)
@@ -58,6 +58,14 @@ class EsriFeatureServiceFullExtent:
 
 
 @dataclass
+class EsriGeometryBbox:
+    xmin: int
+    ymin: int
+    xmax: int
+    ymax: int
+
+
+@dataclass
 class EsriFeatureServiceDetailedInfo:
     """
     This model will store the important information about a feature service.
@@ -88,3 +96,30 @@ class EsriFeatureServiceDetailedInfo:
     """List of available layers in the service."""
     tables: List[Any]
     """The available tables in the service."""
+    featureServerURL: str
+    """The feature server URL"""
+
+
+@dataclass
+class Geometry:
+    type: str
+    coordinates: Union[
+        List[float],
+        List[List[float]],
+        List[List[List[float]]],
+        List[List[List[List[float]]]],
+    ]
+
+
+@dataclass
+class Feature:
+    type: str = "Feature"
+    geometry: Geometry = None
+    properties: Dict[str, Any] = field(default_factory=dict)
+
+
+# FeatureCollection Dataclass
+@dataclass
+class FeatureCollection:
+    type: str = "FeatureCollection"
+    features: List[Feature] = field(default_factory=list)

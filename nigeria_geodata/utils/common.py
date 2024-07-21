@@ -1,12 +1,3 @@
-def in_jupyter_notebook():
-    try:
-        # Jupyter-specific module
-        get_ipython
-        return True
-    except NameError:
-        return False
-
-
 def geojson_to_esri_type(geojson_type: str) -> str:
     """
     Convert a GeoJSON geometry type to an ESRI geometry type.

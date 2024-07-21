@@ -12,8 +12,8 @@ class DataSourceInfo:
 @dataclass
 class EsriFeatureServiceBasicInfo:
     name: str
-    url: str
-    type: str
+    url: Union[str, None] = None
+    type: Union[str, None] = None
 
 
 @dataclass

@@ -5,7 +5,7 @@ Date:
 """
 
 from typing import Dict
-from nigeria_geodata.datasources import DataSource
+from nigeria_geodata.datasources.base import DataSource
 from nigeria_geodata.models.common import DataSourceInfo
 
 
@@ -17,10 +17,6 @@ class Config:
     DATA_SOURCES = {
         DataSource.GRID3: {
             "SERVICE_URL": "https://services3.arcgis.com/BU6Aadhn6tbBEdyk/ArcGIS/rest/services?f=json",
-            # this is supposed to return {"success":true|false} as documented here (https://developers.arcgis.com/rest/services-reference/enterprise/health-check/)
-            # but for some reason it's not, it's rather returning the server info.
-            # Nevertheless, we'll use the server info endpoint as an alternative for now
-            "HEALTH_CHECK_URL": "https://services3.arcgis.com/BU6Aadhn6tbBEdyk/ArcGIS/rest/info/healthCheck/?f=json",
             "SERVICE_INFO_URL": "https://services3.arcgis.com/BU6Aadhn6tbBEdyk/ArcGIS/rest/info/?f=json",
         },
     }

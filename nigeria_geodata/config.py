@@ -19,10 +19,13 @@ class Config:
             "SERVICE_URL": "https://services3.arcgis.com/BU6Aadhn6tbBEdyk/ArcGIS/rest/services?f=json",
             "SERVICE_INFO_URL": "https://services3.arcgis.com/BU6Aadhn6tbBEdyk/ArcGIS/rest/info/?f=json",
         },
+        DataSource.NGSA: {
+            "NIGERIA_STATES_BOUNDARY_URL": "https://gist.githubusercontent.com/jeafreezy/0ae34d9f8a997d52bafdbc57437982f3/raw/f814ea50b4fd65e9eec1a0611082ef942ce11305/nigeria_states.geojson",
+        },
     }
 
     @staticmethod
-    def get_service_url(source: DataSourceInfo) -> str:
+    def get_service_url(source: DataSourceInfo, url: str = "SERVICE_URL") -> str:
         """
         Get the service URL for a given data source.
 
@@ -33,7 +36,7 @@ class Config:
             str: The service URL for the specified data source.
         """
 
-        return Config.DATA_SOURCES.get(source, {}).get("SERVICE_URL")
+        return Config.DATA_SOURCES.get(source, {}).get(url)
 
     @staticmethod
     def get_service_info_url(source: DataSourceInfo) -> str:

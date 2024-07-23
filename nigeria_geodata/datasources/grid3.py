@@ -13,6 +13,8 @@ import json
 from math import ceil
 from typing import List, Optional, Union
 
+from shapely.geometry import shape
+
 from nigeria_geodata.async_core import AsyncBaseDataSource
 from nigeria_geodata.config import Config
 from nigeria_geodata.core import SyncBaseDataSource
@@ -24,14 +26,12 @@ from nigeria_geodata.models.common import (
     FeatureCollection,
 )
 from nigeria_geodata.utils.api import make_request
-from nigeria_geodata.utils.common import (
-    geojson_to_esri_type,
-)
+from nigeria_geodata.utils.common import GeodataUtils
 
 from nigeria_geodata.utils.enums import NigeriaState
 from nigeria_geodata.utils.validators import validate_geojson
 import pandas as pd
-from nigeria_geodata.utils.logging import logger
+from nigeria_geodata.utils import logger
 
 
 class Grid3(SyncBaseDataSource):
@@ -196,26 +196,17 @@ class Grid3(SyncBaseDataSource):
 
     def filter(
         self,
-        data_name: str,  # if the data name is provided, it means statename is to filter
+        data_name: str,
         state: Optional[str] = None,
-        bbox: Optional[List[float]] = None,  # bbox is to filter the provided data name
-        aoi_geojson: Optional[
-            Union[Feature, FeatureCollection]
-        ] = None,  # to filter the provided data name
+        bbox: Optional[List[float]] = None,
+        aoi_geojson: Optional[Union[Feature, FeatureCollection]] = None,
         geodataframe: bool = True,
         preview: bool = False,
     ) -> pd.DataFrame:
-        """
-        Filter the service across multiple layers.
-        """
-
         # get the feature service information
-
         feature_service = self.info(data_name, False)
 
         # todo confirm that the service support query?
-        # get the total data in the layers
-        # get the maximum offset in the info so as to make the request in a loop
 
         # only one parameter can be provided, so this check is to ensure that.
         params = sum([state is not None, bbox is not None, aoi_geojson is not None])
@@ -226,16 +217,17 @@ class Grid3(SyncBaseDataSource):
             )
 
         # State validation
-        # esri_bbox = None
+        esri_geometry = None
         # default to the esriGeometryEnvelope which is like the bbox.
-        # only change it when the user provide an aoi
         geometryType = "esriGeometryEnvelope"
 
         if state is not None:
             if isinstance(state, str):
-                assert state in [
-                    x.value for x in NigeriaState
+                assert state.lower() in [
+                    x.value.lower() for x in NigeriaState
                 ], "The provided state is not a valid Nigeria State."
+            # update esri geometry
+            esri_geometry = GeodataUtils.get_state_bbox(NigeriaState.ABIA.name)
 
         # BBox validation
         if bbox is not None:
@@ -247,6 +239,7 @@ class Grid3(SyncBaseDataSource):
                         "The provided bbox is invalid. It should be a list of four numeric values."
                     )
             # update esribbox
+            esri_geometry = bbox
 
         # GeoJSON validation
         if aoi_geojson is not None:
@@ -270,18 +263,26 @@ class Grid3(SyncBaseDataSource):
                     "The provided GeoJSON must be a Feature, FeatureCollection, or a JSON string representing one of these."
                 )
 
-            # update geometry type
-            geometryType = geojson_to_esri_type(aoi_geojson.geometry.type)
+            # compute the bbox for the geojson, no need to check the type again
+            # even if the user pass in a point, we can always use a bbox filter, at least for now
+            # geometryType = GeodataUtils.geojson_to_esri_type(aoi_geojson.geometry.type)
+            esri_geometry = shape(aoi_geojson.geometry).bounds
 
         # build the query
-        # get first layer id and the id
 
         params = {
-            # get layer id from featureinfo ? because for now we're adding 1  to the query url
             "where": "FID > 0",  # this is required. We're assuming all data has `FID` here.
             "geometryType": geometryType,
-            "f": "geojson",  # check the supported formats to know the one to user, if geojson is not supported, then use json and convert to geojson
+            "f": "geojson",  # check the supported formats to know the one to use, if geojson is not supported, then use json and later convert to geojson
         }
+
+        # update the params if the user filters by state or bbox
+        # According to the docs, geometry bbox only works when the geometry type is "esriGeometryEnvelope"
+        # This would have been a challenge, but we would convert all the inpute geometry to bbox to alleviate it.
+
+        if esri_geometry:
+            params.update({"geometry": ",".join(map(str, esri_geometry))})
+
         req_url = f"{feature_service.featureServerURL}/{feature_service.layers[0]['id']}/query"
         max_features = self.__get_max_features(req_url)
         if max_features == 0:
@@ -291,11 +292,13 @@ class Grid3(SyncBaseDataSource):
         max_request = ceil(max_features / feature_service.maxRecordCount)
         for _ in range(max_request):
             params["resultOffset"] = resultOffset
-            features = make_request(req_url, params=params)["features"]
+            response = make_request(req_url, params=params)
+            features = response["features"]
             result_list.extend(features)
             resultOffset += feature_service.maxRecordCount
         if geodataframe:
-            # geodataframe ?
+            # should we support geodataframe when the user has geopandas in their environment
+            # or when they install it during installation ?
             return pd.DataFrame(result_list)
         return result_list
 
@@ -320,8 +323,7 @@ if __name__ == "__main__":
 
     # search for the specific dataset you need
 
-    ogun_results = grid3.search(query="ogun", dataframe=False)
-
+    search_results = grid3.search(query="health", dataframe=False)
     # see all available datasets
     # specify to get result as dataframe or not
 
@@ -329,11 +331,11 @@ if __name__ == "__main__":
     # all_data = grid3.list_data(dataframe=False)
 
     # get more information about a particular dataset
-    health_data_info = grid3.info(ogun_results[0].name)
+    health_data_info = grid3.info(search_results[2].name)
 
     # filter for an area or interest, state name or bbox
     # this can also support preview if you pass preview to be true
-    health_data_info = grid3.filter(ogun_results[0].name, "Lagos")
+    health_data_info = grid3.filter(search_results[2].name, "lagos")
     print(health_data_info)
     # preview the data
     # download the data - same logic as filter, they can provide different filtering mechanism or none, and the path to save the file.

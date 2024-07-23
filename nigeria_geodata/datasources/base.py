@@ -16,6 +16,11 @@ class DataSource:
             "Our data includes population estimates, settlements, subnational boundaries, and critical infrastructure."
         ),
     )
+    NGSA = DataSourceInfo(
+        name="NGSA",
+        url="https://ngsa.gov.ng/",
+        description=("Nigeria Geological Survey Agency"),
+    )
 
     @classmethod
     def list_sources(cls) -> List[DataSourceInfo]:

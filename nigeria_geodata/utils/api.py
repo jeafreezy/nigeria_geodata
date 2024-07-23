@@ -5,7 +5,7 @@ API module for nigeria_geodata
 import json
 from typing import Any, Dict
 import httpx
-from nigeria_geodata.utils.logging import logger
+from nigeria_geodata.utils import logger
 
 from nigeria_geodata.utils.exceptions import (
     RequestError,

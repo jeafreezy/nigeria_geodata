@@ -43,4 +43,4 @@ class NigeriaState(Enum):
     TARABA = "Taraba"
     YOBE = "Yobe"
     ZAMFARA = "Zamfara"
-    FCT = "Federal Capital Territory"
+    FCT = "Abuja"  # Abuja is the name used in the data, but the user must provide FCT

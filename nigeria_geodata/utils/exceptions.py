@@ -31,3 +31,9 @@ class JSONDecodeError(NigeriaGeodataError):
     """Exception raised for JSON decoding errors."""
 
     pass
+
+
+class PackageNotFoundError(ModuleNotFoundError):
+    """Exception raised when required packages are not found."""
+
+    pass

@@ -8,6 +8,7 @@ from nigeria_geodata.models.common import FeatureCollection
 from nigeria_geodata.utils.api import make_request
 from shapely.geometry import shape
 from nigeria_geodata.utils import logger
+from nigeria_geodata.utils.exceptions import PackageNotFoundError
 
 
 class GeodataUtils:
@@ -70,3 +71,119 @@ class GeodataUtils:
         if not esri_type:
             raise ValueError(f"Unsupported GeoJSON type: {geojson_type}")
         return esri_type
+
+
+class CheckDependencies:
+    @staticmethod
+    def pandas():
+        """
+        Check if the 'geopandas' module is installed and return it if available.
+        Raises an error with instructions if the module is not found.
+
+        Returns:
+            module: The imported 'pandas' module.
+
+        Raises:
+            PackageNotFoundError: If 'geopandas' is not installed.
+        """
+        try:
+            import pandas
+
+            return pandas
+        except PackageNotFoundError as err:
+            # Raise an error with a message to install the missing package
+            raise PackageNotFoundError(
+                "pandas is required for rendering results as a dataframe.\n"
+                "Run `pip install pandas`."
+            ) from err
+
+    @staticmethod
+    def geopandas():
+        """
+        Check if the 'geopandas' module is installed and return it if available.
+        Raises an error with instructions if the module is not found.
+
+        Returns:
+            module: The imported 'geopandas' module.
+
+        Raises:
+            PackageNotFoundError: If 'geopandas' is not installed.
+        """
+        try:
+            import geopandas
+
+            return geopandas
+        except PackageNotFoundError as err:
+            # Raise an error with a message to install the missing package
+            raise PackageNotFoundError(
+                "geopandas is required for rendering results as a geodataframe.\n"
+                "Run `pip install geopandas`."
+            ) from err
+
+    @staticmethod
+    def typer():
+        """
+        Check if the 'typer' module is installed and return it if available.
+        Raises an error with instructions if the module is not found.
+
+        Returns:
+            module: The imported 'typer' module.
+
+        Raises:
+            PackageNotFoundError: If 'typer' is not installed.
+        """
+        try:
+            import typer
+
+            return typer
+        except PackageNotFoundError as err:
+            # Raise an error with a message to install the missing package
+            raise PackageNotFoundError(
+                "typer is required for CLI support.\n" "Run `pip install typer`."
+            ) from err
+
+    @staticmethod
+    def lonboard():
+        """
+        Check if the 'lonboard' module is installed and return it if available.
+        Raises an error with instructions if the module is not found.
+
+        Returns:
+            module: The imported 'lonboard' module.
+
+        Raises:
+            ImportError: If 'lonboard' is not installed.
+        """
+        try:
+            from lonboard import viz
+
+            return viz
+        except PackageNotFoundError as err:
+            # Raise an error with a message to install the missing package
+            raise ImportError(
+                "lonboard is required for map visualization.\n"
+                "Run `pip install lonboard`."
+            ) from err
+
+    @staticmethod
+    def shapely():
+        """
+        Check if the 'shapely' module is installed and return it if available.
+        Raises an error with instructions if the module is not found.
+
+        Returns:
+            module: The imported 'shapely' module.
+
+        Raises:
+            ImportError: If 'shapely' is not installed.
+        """
+        try:
+            import shapely
+
+            return shapely
+        except PackageNotFoundError as err:
+            # Raise an error with a message to install the missing package
+            raise ImportError(
+                "shapely is required for geometry operations.\n"
+                "Run `pip install shapely`."
+            ) from err

@@ -2,6 +2,8 @@ from functools import cache
 
 from typing import Tuple
 
+from shapely import Polygon
+
 from nigeria_geodata.config import Config
 from nigeria_geodata.datasources.base import DataSource
 from nigeria_geodata.models.common import FeatureCollection
@@ -72,19 +74,44 @@ class GeodataUtils:
             raise ValueError(f"Unsupported GeoJSON type: {geojson_type}")
         return esri_type
 
+    @staticmethod
+    def geojson_to_esri_json(geojson_data: Polygon):
+        """
+        Convert a GeoJSON geometry type to an ESRI JSON.
+        """
+        # ref - https://developers.arcgis.com/rest/services-reference/enterprise/geometry-objects/
+        if geojson_data["type"] == "Point":
+            esri_json = {
+                "x": geojson_data["coordinates"][0],
+                "y": geojson_data["coordinates"][1],
+            }
+
+        elif geojson_data["type"] == "LineString":
+            esri_json = {"paths": [geojson_data["coordinates"]]}
+
+        elif geojson_data["type"] == "Polygon":
+            esri_json = {"rings": geojson_data["coordinates"]}
+
+        else:
+            raise ValueError(
+                f"Unsupported GeoJSON geometry type: {geojson_data['type']}"
+            )
+
+        return esri_json
+
 
 class CheckDependencies:
     @staticmethod
     def pandas():
         """
-        Check if the 'geopandas' module is installed and return it if available.
+        Check if the 'pandas' module is installed and return it if available.
         Raises an error with instructions if the module is not found.
 
         Returns:
             module: The imported 'pandas' module.
 
         Raises:
-            PackageNotFoundError: If 'geopandas' is not installed.
+            PackageNotFoundError: If 'pandas' is not installed.
         """
         try:
             import pandas
@@ -163,27 +190,4 @@ class CheckDependencies:
             raise ImportError(
                 "lonboard is required for map visualization.\n"
                 "Run `pip install lonboard`."
-            ) from err
-
-    @staticmethod
-    def shapely():
-        """
-        Check if the 'shapely' module is installed and return it if available.
-        Raises an error with instructions if the module is not found.
-
-        Returns:
-            module: The imported 'shapely' module.
-
-        Raises:
-            ImportError: If 'shapely' is not installed.
-        """
-        try:
-            import shapely
-
-            return shapely
-        except PackageNotFoundError as err:
-            # Raise an error with a message to install the missing package
-            raise ImportError(
-                "shapely is required for geometry operations.\n"
-                "Run `pip install shapely`."
             ) from err

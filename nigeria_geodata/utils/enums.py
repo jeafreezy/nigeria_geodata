@@ -4,6 +4,8 @@ from enum import Enum
 class RequestMethod(Enum):
     GET = "GET"
     """HTTP GET request method"""
+    POST = "POST"
+    """HTTP POST request method"""
 
 
 class NigeriaState(Enum):

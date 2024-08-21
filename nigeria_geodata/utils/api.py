@@ -7,6 +7,7 @@ from typing import Any, Dict
 import httpx
 from nigeria_geodata.utils import logger
 
+from nigeria_geodata.utils.enums import RequestMethod
 from nigeria_geodata.utils.exceptions import (
     RequestError,
     HTTPStatusError,
@@ -20,17 +21,24 @@ def get_headers() -> Dict[str, str]:
     return {"user-agent": f"nigeria_geodata/{__version__}"}
 
 
-def make_request(service_url: str, params: Dict[str, str] = {}) -> Dict[str, Any]:
+def make_request(
+    service_url: str,
+    params: Dict[str, str] = {},
+    method: RequestMethod = RequestMethod.GET,
+) -> Dict[str, Any]:
     """
     Handles the making of request to the datasource.
     """
     try:
         headers = get_headers()
         with httpx.Client() as client:
-            logger.info(f"Making API request to: {service_url}")
+            logger.info(f"Making {method.value} request to: {service_url}")
             logger.info(f"Request parameters: {params}")
             logger.info(f"Request headers: {headers}")
-            response = client.get(service_url, headers=headers, params=params)
+            if method == RequestMethod.GET:
+                response = client.get(service_url, headers=headers, params=params)
+            elif method == RequestMethod.POST:
+                response = client.post(service_url, headers=headers, data=params)
             response.raise_for_status()
             logger.info("API request successful.")
             return response.json()

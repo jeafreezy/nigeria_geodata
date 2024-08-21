@@ -35,6 +35,17 @@ from nigeria_geodata.utils import logger
 
 
 class Grid3(SyncBaseDataSource):
+    """
+    A data source class for interacting with the GRID3 service.
+
+    This class extends `SyncBaseDataSource` and is configured to interact 
+    with the GRID3 data service, using predefined URLs for the service and 
+    its associated information.
+
+    Attributes:
+        service_url (str): The URL to the GRID3 service layer.
+        service_info_url (str): The URL to the GRID3 service information layer.
+    """
     service_url: str = Config.get_service_url(DataSource.GRID3)
     service_info_url: str = Config.get_service_info_url(DataSource.GRID3)
 
@@ -46,9 +57,15 @@ class Grid3(SyncBaseDataSource):
     @cache
     def _get_feature_services(self) -> List[EsriFeatureServiceBasicInfo]:
         """
-        Retrieve the feature servers with Nigeria data from the ArcGIS Server root directory,
-        """
+        Retrieve a list of feature services available in the data source.
 
+        This method queries the data source and returns a list of basic 
+        information about the Esri feature services that are available.
+
+        Returns:
+            List[EsriFeatureServiceBasicInfo]: A list containing basic information 
+            about each available Esri feature service.
+        """
         api_response = make_request(self.service_url)
 
         # based on review of the datasets, Nigeria is either represented as Nigeria or NGA
@@ -71,6 +88,20 @@ class Grid3(SyncBaseDataSource):
         return feature_services
 
     def __find_and_validate_name(self, data_name) -> List[EsriFeatureServiceBasicInfo]:
+        """
+        Check if the specified data name exists in the service layer and retrieve matching data.
+
+        This method searches for feature services in the service layer that match the provided 
+        data name and returns a list of `EsriFeatureServiceBasicInfo` objects corresponding 
+        to the matches.
+
+        Parameters:
+            data_name (str): The name of the data to search for in the service layer.
+
+        Returns:
+            List[EsriFeatureServiceBasicInfo]: A list of `EsriFeatureServiceBasicInfo` objects 
+            representing the data that matches the provided name.
+        """
         data_exist = [
             service
             for service in self.feature_services
@@ -84,6 +115,19 @@ class Grid3(SyncBaseDataSource):
 
     @cache
     def __get_max_features(self, service_url: str) -> int:
+        """
+        Retrieve the maximum number of features available in the specified service layer.
+
+        This method queries the service layer at the given URL to determine the total number 
+        of features available.
+
+        Parameters:
+            service_url (str): The URL of the service layer to query.
+
+        Returns:
+            int: The maximum number of features available in the specified service layer.
+        """
+
         params = {
             "where": "FID > 0",
             "groupByFieldsForStatistics": "",
@@ -107,7 +151,23 @@ class Grid3(SyncBaseDataSource):
     def list_data(
         self, dataframe: bool = True
     ) -> Union[List[EsriFeatureServiceBasicInfo], pd.DataFrame]:
-        """List available datasets from the datasource"""
+        """
+        List data available in the service layer.
+
+        This method retrieves a list of Esri feature services available in the data source. 
+        The data can be returned either as a list of `EsriFeatureServiceBasicInfo` objects 
+        or as a pandas DataFrame, depending on the `dataframe` parameter.
+
+        Parameters:
+            dataframe (bool): If True, the data is returned as a pandas DataFrame. 
+                            If False, the data is returned as a list of `EsriFeatureServiceBasicInfo` objects.
+                            Default is True.
+
+        Returns:
+            Union[List[EsriFeatureServiceBasicInfo], pd.DataFrame]: 
+                A list of `EsriFeatureServiceBasicInfo` objects or a pandas DataFrame 
+                containing the available data, based on the `dataframe` parameter.
+        """
         total_services = len(self.feature_services)
         logger.info(
             f"There is a total {total_services + 1} Nigeria geodata in the Grid3 database."
@@ -126,6 +186,25 @@ class Grid3(SyncBaseDataSource):
     def search(
         self, query: str, dataframe: bool = True
     ) -> Union[List[EsriFeatureServiceBasicInfo], pd.DataFrame]:
+        """
+        Search for feature services matching the query in the service layer.
+
+        This method searches for Esri feature services that match the provided query string. 
+        The search results can be returned either as a list of `EsriFeatureServiceBasicInfo` objects 
+        or as a pandas DataFrame, depending on the `dataframe` parameter.
+
+        Args:
+            query (str): The search query string used to filter the feature services.
+            dataframe (bool): If True, the search results are returned as a pandas DataFrame. 
+                            If False, the results are returned as a list of `EsriFeatureServiceBasicInfo` objects.
+                            Default is True.
+
+        Returns:
+            Union[List[EsriFeatureServiceBasicInfo], pd.DataFrame]: 
+                A list of `EsriFeatureServiceBasicInfo` objects or a pandas DataFrame containing 
+                the search results, based on the `dataframe` parameter.
+        """
+
         search_results = list(
             filter(
                 lambda feature_server: query.upper()
@@ -202,7 +281,30 @@ class Grid3(SyncBaseDataSource):
         aoi_geojson: Optional[Union[Feature, FeatureCollection]] = None,
         geodataframe: bool = True,
         preview: bool = False,
-    ) -> pd.DataFrame:
+    ) -> pd.DataFrame:   
+        """
+        Filter data from the service layer based on various criteria.
+
+        This method filters Esri feature services using the specified criteria such as 
+        data name, state, bounding box, or an area of interest (AOI) in GeoJSON format. 
+        The filtered data is returned as a pandas DataFrame.
+
+        Args:
+            data_name (str): The name of the data to filter.
+            state (Optional[str]): The specific state to filter the data by. Default is None.
+            bbox (Optional[List[float]]): A bounding box to filter the data, specified as 
+                                        [xmin, ymin, xmax, ymax]. Default is None.
+            aoi_geojson (Optional[Union[Feature, FeatureCollection]]): A GeoJSON object representing 
+                                                                    the area of interest to filter by. Default is None.
+            geodataframe (bool): If True, returns the filtered data as a GeoDataFrame. 
+                                If False, returns it as a regular pandas DataFrame. Default is True.
+            preview (bool): If True, returns a preview of the filtered data, typically limited in size. 
+                            Default is False.
+
+        Returns:
+            pd.DataFrame: The filtered data as a pandas DataFrame or GeoDataFrame, based on the `geodataframe` parameter.
+        """
+
         # get the feature service information
         feature_service = self.info(data_name, False)
 

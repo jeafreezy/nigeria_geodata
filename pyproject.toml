@@ -59,6 +59,8 @@ cli = ["typer"]
 ruff = "^0.5.1"
 pre-commit = "^3.7.1"
 pytest = "^8.3.2"
+pandas = "^2.2.2"
+geopandas = "^1.0.1"
 
 
 [build-system]

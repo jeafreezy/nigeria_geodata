@@ -1,6 +1,6 @@
 from functools import cache
 import datetime
-from typing import Tuple
+from typing import Any, Dict, Tuple
 
 from shapely import Polygon
 
@@ -102,6 +102,120 @@ class GeodataUtils:
             )
 
         return esri_json
+
+    @staticmethod
+    def validate_geojson_geometry(geometry: Dict[str, Any]) -> bool:
+        """
+        Validates the structure and coordinates of a GeoJSON geometry.
+
+        Parameters:
+            geometry (Dict): The GeoJSON geometry to validate.
+
+        Returns:
+            bool: True if the geometry is valid, False otherwise.
+        """
+
+        geom_type = geometry.get("type")
+        coords = geometry.get("coordinates")
+
+        if "type" not in geometry or "coordinates" not in geometry:
+            return False
+
+        # Validation based on the geometry type
+        if geom_type == "Point":
+            if not (
+                isinstance(coords, list)
+                and len(coords) == 2
+                and all(isinstance(coord, (int, float)) for coord in coords)
+            ):
+                return False
+
+        elif geom_type == "Polygon":
+            if (
+                not isinstance(coords, list)
+                or len(coords) == 0
+                or not all(isinstance(ring, list) for ring in coords)
+                or not all(
+                    isinstance(coord, list)
+                    and len(coord) == 2
+                    and all(isinstance(c, (int, float)) for c in coord)
+                    for ring in coords
+                    for coord in ring
+                )
+            ):
+                return False
+
+        elif geom_type == "LineString":
+            if (
+                not isinstance(coords, list)
+                or len(coords) == 0
+                or not all(
+                    isinstance(coord, list)
+                    and len(coord) == 2
+                    and all(isinstance(c, (int, float)) for c in coord)
+                    for coord in coords
+                )
+            ):
+                return False
+
+        elif geom_type == "MultiPoint":
+            if (
+                not isinstance(coords, list)
+                or len(coords) == 0
+                or not all(
+                    isinstance(coord, list)
+                    and len(coord) == 2
+                    and all(isinstance(c, (int, float)) for c in coord)
+                    for coord in coords
+                )
+            ):
+                return False
+
+        elif geom_type == "MultiLineString":
+            if (
+                not isinstance(coords, list)
+                or len(coords) == 0
+                or not all(
+                    isinstance(line, list)
+                    and len(line) > 0
+                    and all(
+                        isinstance(coord, list)
+                        and len(coord) == 2
+                        and all(isinstance(c, (int, float)) for c in coord)
+                        for coord in line
+                    )
+                    for line in coords
+                )
+            ):
+                return False
+
+        elif geom_type == "MultiPolygon":
+            if (
+                not isinstance(coords, list)
+                or len(coords) == 0
+                or not all(
+                    isinstance(polygon, list)
+                    and len(polygon) > 0
+                    and all(
+                        isinstance(ring, list)
+                        and len(ring) > 0
+                        and all(
+                            isinstance(coord, list)
+                            and len(coord) == 2
+                            and all(isinstance(c, (int, float)) for c in coord)
+                            for coord in ring
+                        )
+                        for ring in polygon
+                    )
+                    for polygon in coords
+                )
+            ):
+                return False
+
+        else:
+            return False
+
+        return True
 
 
 class CheckDependencies:

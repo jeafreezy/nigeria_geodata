@@ -8,13 +8,9 @@ Date:
 
 """
 
-from functools import cache
-
 import logging
 from math import ceil
 from typing import List, Optional, Union
-
-
 from nigeria_geodata.async_core import AsyncBaseDataSource
 from nigeria_geodata.config import Config
 from nigeria_geodata.core import SyncBaseDataSource
@@ -44,7 +40,6 @@ class Grid3(SyncBaseDataSource):
         # fetch and cache this at initialization for optimal performance
         self.feature_services = self._get_feature_services()
 
-    @cache
     def _get_feature_services(self) -> List[EsriFeatureServiceBasicInfo]:
         """
         Retrieve the feature servers with Nigeria data from the ArcGIS Server root directory,
@@ -83,7 +78,6 @@ class Grid3(SyncBaseDataSource):
             raise ValueError(msg)
         return data_exist
 
-    @cache
     def __get_max_features(self, service_url: str) -> int:
         params = {
             "where": "FID > 0",
@@ -104,7 +98,6 @@ class Grid3(SyncBaseDataSource):
         res = make_request(service_url, params=params)
         return res["features"][0]["attributes"]["COUNT"]
 
-    @cache
     def list_data(
         self, dataframe: bool = True
     ) -> Union[List[EsriFeatureServiceBasicInfo]]:

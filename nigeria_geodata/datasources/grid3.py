@@ -20,12 +20,16 @@ from nigeria_geodata.config import Config
 from nigeria_geodata.core import SyncBaseDataSource
 from nigeria_geodata.datasources.base import DataSource
 from nigeria_geodata.models.common import (
+    EsriFeatureLayerInfo,
     EsriFeatureServiceBasicInfo,
-    EsriFeatureServiceDetailedInfo,
     Geometry,
 )
 from nigeria_geodata.utils.api import make_request
-from nigeria_geodata.utils.common import CheckDependencies, GeodataUtils
+from nigeria_geodata.utils.common import (
+    CheckDependencies,
+    GeodataUtils,
+    timestamp_to_datetime,
+)
 
 from nigeria_geodata.utils.enums import NigeriaState, RequestMethod
 from nigeria_geodata.utils import logger, configure_logging
@@ -106,6 +110,9 @@ class Grid3(SyncBaseDataSource):
     ) -> Union[List[EsriFeatureServiceBasicInfo]]:
         """List available datasets from the datasource"""
         total_services = len(self.feature_services)
+        # Note: a feature server can have many layers, but inspecting the Grid3 service
+        # all the feature server have a single layer for a single dataset
+        # although the id of the layers are different.
         logger.info(
             f"There is a total {total_services + 1} Nigeria geodata in the Grid3 database."
         )
@@ -118,9 +125,9 @@ class Grid3(SyncBaseDataSource):
                 ],
             }
             return pd.DataFrame(data)
-        return self.feature_services
+        # return a dict for those that don't want a dataframe or don't have pandas installed.
+        return [x.__dict__ for x in self.feature_services]
 
-    @cache
     def search(
         self, query: str, dataframe: bool = True
     ) -> Union[List[EsriFeatureServiceBasicInfo]]:
@@ -133,24 +140,30 @@ class Grid3(SyncBaseDataSource):
         )
 
         total_results = len(search_results)
-        logger.info(f"Search query for '{query}' returned {total_results + 1} results.")
+        logger.info(f"Search query for '{query}' returned {total_results} results.")
 
-        if dataframe:
-            pd = CheckDependencies.pandas()
-            # they don't need to see the url when rendering the dataframe.
-            data = {
-                "id": list(range(total_results)),
-                "name": [feature_service.name for feature_service in search_results],
-            }
-            return pd.DataFrame(data)
+        if len(search_results) > 0:
+            if dataframe:
+                pd = CheckDependencies.pandas()
+                # they don't need to see the url when rendering the dataframe.
+                data = {
+                    "id": list(range(total_results)),
+                    "name": [
+                        feature_service.name for feature_service in search_results
+                    ],
+                }
+                return pd.DataFrame(data)
 
-        # return it as a list of dict
-        return search_results
+            # return it as a list of dict
+            return [x.__dict__ for x in search_results]
+        print(
+            f"Search query for '{query}' did not match any available datasets. Use `grid3.list_data()` to see available datasets."
+        )
+        return []
 
-    @cache
     def info(
         self, data_name: str, dataframe: bool = True
-    ) -> Union[EsriFeatureServiceDetailedInfo]:
+    ) -> Union[EsriFeatureLayerInfo]:
         """
         Connect to a FeatureServer and retrieve more information about it.
 
@@ -169,7 +182,15 @@ class Grid3(SyncBaseDataSource):
         # incase it returns multiple just use the first one.
         feature_server = search_result[0]
         response = make_request(f"{feature_server.url}", query_params)
-        feature_service = EsriFeatureServiceDetailedInfo(
+        # make a request to the actual layer to get the last edited date
+        layer_response = make_request(
+            f"{feature_server.url}/{response['layers'][0]['id']}", query_params
+        )
+        feature_service = EsriFeatureLayerInfo(
+            layerName=layer_response["name"],
+            layerGeometryType=layer_response["geometryType"],
+            layerObjectIdField=layer_response["objectIdField"],
+            layerId=response["layers"][0]["id"],
             serviceDescription=response["serviceDescription"],
             serviceItemId=response["serviceItemId"],
             maxRecordCount=response["maxRecordCount"],
@@ -183,6 +204,12 @@ class Grid3(SyncBaseDataSource):
             layers=response["layers"],
             tables=response["tables"],
             featureServerURL=feature_server.url,
+            layerLastUpdated=timestamp_to_datetime(
+                layer_response["editingInfo"]["dataLastEditDate"]
+            ),
+            totalFeatures=self.__get_max_features(
+                f"{feature_server.url}/{response['layers'][0]['id']}/query"
+            ),
         )
         if dataframe:
             pd = CheckDependencies.pandas()
@@ -191,7 +218,7 @@ class Grid3(SyncBaseDataSource):
             data.pop("maxRecordCount", None)
             transformed_data = {"Key": list(data.keys()), "Value": list(data.values())}
             return pd.DataFrame(transformed_data)
-        return feature_service
+        return feature_service.__dict__
 
     def filter(
         self,
@@ -241,7 +268,7 @@ class Grid3(SyncBaseDataSource):
             esri_geometry = GeodataUtils.geojson_to_esri_json(aoi_geojson)
 
         params = {
-            "where": "FID > 0",  # this is required. We're assuming all data has `FID` here.
+            "where": f"{feature_service['layerObjectIdField']} > 0",  # this is required
             "geometryType": geometryType,
             "f": "geojson",
             "outFields": "*",  # to return all the attributes of the data
@@ -255,32 +282,35 @@ class Grid3(SyncBaseDataSource):
             if aoi_geojson:
                 params.update({"geometry": esri_geometry})
 
-        req_url = f"{feature_service.featureServerURL}/{feature_service.layers[0]['id']}/query"
-        max_features = self.__get_max_features(req_url)
+        max_features = feature_service["totalFeatures"]
         if max_features == 0:
             return []
         result_list = []
         resultOffset = 0
-        max_request = ceil(max_features / feature_service.maxRecordCount)
+        max_request = ceil(max_features / feature_service["maxRecordCount"])
         for _ in range(max_request):
             params["resultOffset"] = resultOffset
-            response = make_request(req_url, params=params, method=RequestMethod.POST)
+            response = make_request(
+                f"{feature_service['featureServerURL']}/{feature_service['layerId']}/query",
+                params=params,
+                method=RequestMethod.POST,
+            )
             features = response["features"]
             result_list.extend(features)
-            resultOffset += feature_service.maxRecordCount
+            resultOffset += feature_service["maxRecordCount"]
             # check the length of the response, if it's less than the maxRecordCount then we can break
             # e.g when filtering, the result might not be up to 2000 i.e the maxRecordCount, so instead of making multiple requests
             # based on the total dataset i.e max_features, we can break it here.
             # an alternative is to hit the statistics endpoint with the filtering to get the maximum features for the query
             # but that's going to be another query. So this approach works fine for now.
             # Will require more testing.
-            if len(features) < feature_service.maxRecordCount:
+            if len(features) < feature_service["maxRecordCount"]:
                 break
 
         if len(result_list) > 0:
             gpd = CheckDependencies.geopandas()
             gdf = gpd.GeoDataFrame.from_features(
-                result_list, crs=f"EPSG:{feature_service.spatialReference['wkid']}"
+                result_list, crs=f"EPSG:{feature_service['spatialReference']['wkid']}"
             )
             if preview:
                 viz = CheckDependencies.lonboard()
@@ -312,7 +342,7 @@ if __name__ == "__main__":
     # search for the specific dataset you need
 
     search_results = grid3.search(query="health", dataframe=False)
-
+    print(search_results)
     # see all available datasets
     # specify to get result as dataframe or not
 
@@ -320,8 +350,8 @@ if __name__ == "__main__":
     # all_data = grid3.list_data()
 
     # # get more information about a particular dataset
-    # health_data_info = grid3.info(search_results[2].name)
-
+    health_data_info = grid3.info(search_results[2]["name"])
+    # print(health_data_info)
     # # filter for an area or interest, state name or bbox
     # # this can also support preview if you pass preview to be true
 
@@ -386,7 +416,7 @@ if __name__ == "__main__":
         ],
     }
 
-    health_data_info = grid3.filter(search_results[2].name, aoi_geojson=abuja)
+    health_data_info = grid3.filter(search_results[2]["name"], aoi_geojson=abuja)
 
     print(health_data_info)
     # preview the data

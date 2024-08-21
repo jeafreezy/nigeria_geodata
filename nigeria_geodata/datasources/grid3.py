@@ -157,7 +157,7 @@ class Grid3(SyncBaseDataSource):
             # return it as a list of dict
             return [x.__dict__ for x in search_results]
         print(
-            f"Search query for '{query}' did not match any available datasets. Use `grid3.list_data()` to see available datasets."
+            f"Search query for '{query}' did not match any available datasets. Use `Grid3().list_data()` to see available datasets."
         )
         return []
 

@@ -248,7 +248,10 @@ class Grid3(SyncBaseDataSource):
                 state.lower() in [x.value.lower() for x in NigeriaState]
             ), f"The provided state is not a valid Nigeria State. Available states are: {[x.name for x in NigeriaState]}"
             # update esri geometry
-            esri_geometry = GeodataUtils.get_state_bbox(state)
+            geometryType = "esriGeometryPolygon"
+            esri_geometry = GeodataUtils.geojson_to_esri_json(
+                GeodataUtils.get_state_geometry(state)
+            )
 
         # bbox validation
         if bbox:
@@ -279,7 +282,7 @@ class Grid3(SyncBaseDataSource):
         if esri_geometry:
             if bbox:
                 params.update({"geometry": ",".join(map(str, esri_geometry))})
-            if aoi_geojson:
+            if aoi_geojson or state:
                 params.update({"geometry": esri_geometry})
 
         max_features = feature_service["totalFeatures"]
@@ -416,7 +419,7 @@ if __name__ == "__main__":
         ],
     }
 
-    health_data_info = grid3.filter(search_results[2]["name"], aoi_geojson=abuja)
+    health_data_info = grid3.filter(search_results[2]["name"], "abuja")
 
     print(health_data_info)
     # preview the data

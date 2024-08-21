@@ -8,7 +8,6 @@ from nigeria_geodata.config import Config
 from nigeria_geodata.datasources.base import DataSource
 from nigeria_geodata.models.common import FeatureCollection
 from nigeria_geodata.utils.api import make_request
-from shapely.geometry import shape
 from nigeria_geodata.utils import logger
 from nigeria_geodata.utils.exceptions import PackageNotFoundError
 
@@ -30,7 +29,7 @@ class GeodataUtils:
         return response
 
     @staticmethod
-    def get_state_bbox(state_name: str) -> Tuple[float, float, float, float]:
+    def get_state_geometry(state_name: str) -> Tuple[float, float, float, float]:
         """
         Get the bounding box for a given state.
 
@@ -51,7 +50,7 @@ class GeodataUtils:
             )
         )
         if len(state_geometry) > 0:
-            return shape(state_geometry[0]["geometry"]).bounds
+            return state_geometry[0]["geometry"]
         else:
             msg = f"State '{state_name}' not found in the GeoJSON data."
             logger.error(msg)
@@ -91,7 +90,12 @@ class GeodataUtils:
 
         elif geojson_data["type"] == "Polygon":
             esri_json = {"rings": geojson_data["coordinates"]}
-
+        elif geojson_data["type"] == "MultiPolygon":
+            esri_json = {
+                "rings": [
+                    ring for polygon in geojson_data["coordinates"] for ring in polygon
+                ]
+            }
         else:
             raise ValueError(
                 f"Unsupported GeoJSON geometry type: {geojson_data['type']}"

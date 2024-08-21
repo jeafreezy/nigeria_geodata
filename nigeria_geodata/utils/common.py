@@ -1,5 +1,5 @@
 from functools import cache
-
+import datetime
 from typing import Tuple
 
 from shapely import Polygon
@@ -191,3 +191,13 @@ class CheckDependencies:
                 "lonboard is required for map visualization.\n"
                 "Run `pip install lonboard`."
             ) from err
+
+
+def timestamp_to_datetime(timestamp_ms: int):
+    # Convert to seconds by dividing by 1000
+    timestamp_sec = timestamp_ms / 1000
+
+    # Convert to datetime
+    date_time = datetime.datetime.fromtimestamp(timestamp_sec)
+
+    return date_time

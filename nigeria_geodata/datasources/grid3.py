@@ -20,12 +20,16 @@ from nigeria_geodata.config import Config
 from nigeria_geodata.core import SyncBaseDataSource
 from nigeria_geodata.datasources.base import DataSource
 from nigeria_geodata.models.common import (
+    EsriFeatureLayerInfo,
     EsriFeatureServiceBasicInfo,
-    EsriFeatureServiceDetailedInfo,
     Geometry,
 )
 from nigeria_geodata.utils.api import make_request
-from nigeria_geodata.utils.common import CheckDependencies, GeodataUtils
+from nigeria_geodata.utils.common import (
+    CheckDependencies,
+    GeodataUtils,
+    timestamp_to_datetime,
+)
 
 from nigeria_geodata.utils.enums import NigeriaState, RequestMethod
 from nigeria_geodata.utils import logger, configure_logging
@@ -106,6 +110,9 @@ class Grid3(SyncBaseDataSource):
     ) -> Union[List[EsriFeatureServiceBasicInfo]]:
         """List available datasets from the datasource"""
         total_services = len(self.feature_services)
+        # Note: a feature server can have many layers, but inspecting the Grid3 service
+        # all the feature server have a single layer for a single dataset
+        # although the id of the layers are different.
         logger.info(
             f"There is a total {total_services + 1} Nigeria geodata in the Grid3 database."
         )
@@ -118,7 +125,8 @@ class Grid3(SyncBaseDataSource):
                 ],
             }
             return pd.DataFrame(data)
-        return self.feature_services
+        # return a dict for those that don't want a dataframe or don't have pandas installed.
+        return [x.__dict__ for x in self.feature_services]
 
     @cache
     def search(
@@ -148,7 +156,7 @@ class Grid3(SyncBaseDataSource):
                 return pd.DataFrame(data)
 
             # return it as a list of dict
-            return search_results
+            return [x.__dict__ for x in search_results]
         print(
             f"Search query for '{query}' did not match any available datasets. Use `grid3.list_data()` to see available datasets."
         )
@@ -157,7 +165,7 @@ class Grid3(SyncBaseDataSource):
     @cache
     def info(
         self, data_name: str, dataframe: bool = True
-    ) -> Union[EsriFeatureServiceDetailedInfo]:
+    ) -> Union[EsriFeatureLayerInfo]:
         """
         Connect to a FeatureServer and retrieve more information about it.
 
@@ -176,7 +184,15 @@ class Grid3(SyncBaseDataSource):
         # incase it returns multiple just use the first one.
         feature_server = search_result[0]
         response = make_request(f"{feature_server.url}", query_params)
-        feature_service = EsriFeatureServiceDetailedInfo(
+        # make a request to the actual layer to get the last edited date
+        layer_response = make_request(
+            f"{feature_server.url}/{response['layers'][0]['id']}", query_params
+        )
+        feature_service = EsriFeatureLayerInfo(
+            layerName=layer_response["name"],
+            layerGeometryType=layer_response["geometryType"],
+            layerObjectIdField=layer_response["objectIdField"],
+            layerId=response["layers"][0]["id"],
             serviceDescription=response["serviceDescription"],
             serviceItemId=response["serviceItemId"],
             maxRecordCount=response["maxRecordCount"],
@@ -190,6 +206,9 @@ class Grid3(SyncBaseDataSource):
             layers=response["layers"],
             tables=response["tables"],
             featureServerURL=feature_server.url,
+            layerLastUpdated=timestamp_to_datetime(
+                layer_response["editingInfo"]["dataLastEditDate"]
+            ),
         )
         if dataframe:
             pd = CheckDependencies.pandas()
@@ -198,7 +217,7 @@ class Grid3(SyncBaseDataSource):
             data.pop("maxRecordCount", None)
             transformed_data = {"Key": list(data.keys()), "Value": list(data.values())}
             return pd.DataFrame(transformed_data)
-        return feature_service
+        return feature_service.__dict__
 
     def filter(
         self,
@@ -248,7 +267,7 @@ class Grid3(SyncBaseDataSource):
             esri_geometry = GeodataUtils.geojson_to_esri_json(aoi_geojson)
 
         params = {
-            "where": "FID > 0",  # this is required. We're assuming all data has `FID` here.
+            "where": f"{feature_service.layerObjectIdField} > 0",  # this is required
             "geometryType": geometryType,
             "f": "geojson",
             "outFields": "*",  # to return all the attributes of the data
@@ -262,7 +281,7 @@ class Grid3(SyncBaseDataSource):
             if aoi_geojson:
                 params.update({"geometry": esri_geometry})
 
-        req_url = f"{feature_service.featureServerURL}/{feature_service.layers[0]['id']}/query"
+        req_url = f"{feature_service.featureServerURL}/{feature_service.layerId}/query"
         max_features = self.__get_max_features(req_url)
         if max_features == 0:
             return []
@@ -327,74 +346,74 @@ if __name__ == "__main__":
     # all_data = grid3.list_data()
 
     # # get more information about a particular dataset
-    # health_data_info = grid3.info(search_results[2].name)
-
+    health_data_info = grid3.info(search_results[2]["name"])
+    print(health_data_info)
     # # filter for an area or interest, state name or bbox
     # # this can also support preview if you pass preview to be true
 
-    abuja = {
-        "type": "Polygon",
-        "coordinates": [
-            [
-                [7.67238899070153, 9.411277743470464],
-                [7.719591613614795, 9.346354492650503],
-                [7.730054867765653, 9.33196349327467],
-                [7.667605864807296, 9.303650865823396],
-                [7.603319118750131, 9.161440866254003],
-                [7.588679365597071, 9.129055992709448],
-                [7.592266990284626, 8.924564364697154],
-                [7.594658867462671, 8.856400492018963],
-                [7.591669114033247, 8.834875115658646],
-                [7.565301365788063, 8.785279241049718],
-                [7.541442864752658, 8.74040311720757],
-                [7.5019798649085, 8.66865161494098],
-                [7.496000739627068, 8.654301615795815],
-                [7.493228492469344, 8.65073686485621],
-                [7.4792584938284, 8.632776239657048],
-                [7.477623487864993, 8.631333365597213],
-                [7.443030865078008, 8.5932817402168],
-                [7.418127113138021, 8.56990236521378],
-                [7.38915723993034, 8.5455074895479],
-                [7.368616617069182, 8.529128989284942],
-                [7.342399617991854, 8.510438864012112],
-                [7.312413239385601, 8.50078199108101],
-                [7.271183991946438, 8.492465989931919],
-                [7.210765363160833, 8.48096086713188],
-                [7.162990988851832, 8.473337117086784],
-                [7.11674123785723, 8.46622186620111],
-                [7.084213742435283, 8.46368024370573],
-                [7.057121737894344, 8.462964990203917],
-                [7.025258118230123, 8.461647990307892],
-                [6.991440740707198, 8.459823618719618],
-                [6.984174740196291, 8.459377243126793],
-                [6.827889862436032, 8.457549993573364],
-                [6.778522487526533, 8.457549993744959],
-                [6.784782863822441, 8.991261491241401],
-                [6.786707365437382, 9.155335367553638],
-                [6.788054490183914, 9.270166369378135],
-                [7.015266867342825, 9.26897049246719],
-                [7.03007511517467, 9.257713365980083],
-                [7.167658364603656, 9.153118117645125],
-                [7.219757990204025, 9.11351011747923],
-                [7.233965866095348, 9.133501992184573],
-                [7.249756865348898, 9.155721616078473],
-                [7.388168363904934, 9.349822990066782],
-                [7.393835989854549, 9.353999119481715],
-                [7.39853861692722, 9.357463869954966],
-                [7.417672116930958, 9.36703111926685],
-                [7.445176614027172, 9.369422867499107],
-                [7.463114741913456, 9.36822699032303],
-                [7.476269239856355, 9.370618866833878],
-                [7.496598739331612, 9.362247494624235],
-                [7.50975273839554, 9.361051618025659],
-                [7.58987524310246, 9.431607244136378],
-                [7.67238899070153, 9.411277743470464],
-            ]
-        ],
-    }
+    # abuja = {
+    #     "type": "Polygon",
+    #     "coordinates": [
+    #         [
+    #             [7.67238899070153, 9.411277743470464],
+    #             [7.719591613614795, 9.346354492650503],
+    #             [7.730054867765653, 9.33196349327467],
+    #             [7.667605864807296, 9.303650865823396],
+    #             [7.603319118750131, 9.161440866254003],
+    #             [7.588679365597071, 9.129055992709448],
+    #             [7.592266990284626, 8.924564364697154],
+    #             [7.594658867462671, 8.856400492018963],
+    #             [7.591669114033247, 8.834875115658646],
+    #             [7.565301365788063, 8.785279241049718],
+    #             [7.541442864752658, 8.74040311720757],
+    #             [7.5019798649085, 8.66865161494098],
+    #             [7.496000739627068, 8.654301615795815],
+    #             [7.493228492469344, 8.65073686485621],
+    #             [7.4792584938284, 8.632776239657048],
+    #             [7.477623487864993, 8.631333365597213],
+    #             [7.443030865078008, 8.5932817402168],
+    #             [7.418127113138021, 8.56990236521378],
+    #             [7.38915723993034, 8.5455074895479],
+    #             [7.368616617069182, 8.529128989284942],
+    #             [7.342399617991854, 8.510438864012112],
+    #             [7.312413239385601, 8.50078199108101],
+    #             [7.271183991946438, 8.492465989931919],
+    #             [7.210765363160833, 8.48096086713188],
+    #             [7.162990988851832, 8.473337117086784],
+    #             [7.11674123785723, 8.46622186620111],
+    #             [7.084213742435283, 8.46368024370573],
+    #             [7.057121737894344, 8.462964990203917],
+    #             [7.025258118230123, 8.461647990307892],
+    #             [6.991440740707198, 8.459823618719618],
+    #             [6.984174740196291, 8.459377243126793],
+    #             [6.827889862436032, 8.457549993573364],
+    #             [6.778522487526533, 8.457549993744959],
+    #             [6.784782863822441, 8.991261491241401],
+    #             [6.786707365437382, 9.155335367553638],
+    #             [6.788054490183914, 9.270166369378135],
+    #             [7.015266867342825, 9.26897049246719],
+    #             [7.03007511517467, 9.257713365980083],
+    #             [7.167658364603656, 9.153118117645125],
+    #             [7.219757990204025, 9.11351011747923],
+    #             [7.233965866095348, 9.133501992184573],
+    #             [7.249756865348898, 9.155721616078473],
+    #             [7.388168363904934, 9.349822990066782],
+    #             [7.393835989854549, 9.353999119481715],
+    #             [7.39853861692722, 9.357463869954966],
+    #             [7.417672116930958, 9.36703111926685],
+    #             [7.445176614027172, 9.369422867499107],
+    #             [7.463114741913456, 9.36822699032303],
+    #             [7.476269239856355, 9.370618866833878],
+    #             [7.496598739331612, 9.362247494624235],
+    #             [7.50975273839554, 9.361051618025659],
+    #             [7.58987524310246, 9.431607244136378],
+    #             [7.67238899070153, 9.411277743470464],
+    #         ]
+    #     ],
+    # }
 
-    health_data_info = grid3.filter(search_results[2].name, aoi_geojson=abuja)
+    # health_data_info = grid3.filter(search_results[2].name, aoi_geojson=abuja)
 
-    print(health_data_info)
+    # print(health_data_info)
     # preview the data
     # download the data - same logic as filter, they can provide different filtering mechanism or none, and the path to save the file.

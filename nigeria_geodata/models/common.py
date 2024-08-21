@@ -66,12 +66,24 @@ class EsriGeometryBbox:
 
 
 @dataclass
-class EsriFeatureServiceDetailedInfo:
+class EsriFeatureLayerInfo:
     """
     This model will store the important information about a feature service.
     Esri returns more objects, but the ones here are the most relevant to the package.
     """
 
+    # layer specific metadata
+    layerName: str
+    """The name of the layer"""
+    layerGeometryType: str
+    """The geometry type of the layer"""
+    layerObjectIdField: str
+    """The object id of the layer"""
+    layerLastUpdated: str
+    """The date the data was last updated"""
+    layerId: str
+    """The id of the first layer"""
+    # service specific metadata
     serviceItemId: str
     """The Id of the service."""
     serviceDescription: str

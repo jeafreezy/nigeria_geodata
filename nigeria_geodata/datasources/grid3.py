@@ -133,19 +133,26 @@ class Grid3(SyncBaseDataSource):
         )
 
         total_results = len(search_results)
-        logger.info(f"Search query for '{query}' returned {total_results + 1} results.")
+        logger.info(f"Search query for '{query}' returned {total_results} results.")
 
-        if dataframe:
-            pd = CheckDependencies.pandas()
-            # they don't need to see the url when rendering the dataframe.
-            data = {
-                "id": list(range(total_results)),
-                "name": [feature_service.name for feature_service in search_results],
-            }
-            return pd.DataFrame(data)
+        if len(search_results) > 0:
+            if dataframe:
+                pd = CheckDependencies.pandas()
+                # they don't need to see the url when rendering the dataframe.
+                data = {
+                    "id": list(range(total_results)),
+                    "name": [
+                        feature_service.name for feature_service in search_results
+                    ],
+                }
+                return pd.DataFrame(data)
 
-        # return it as a list of dict
-        return search_results
+            # return it as a list of dict
+            return search_results
+        print(
+            f"Search query for '{query}' did not match any available datasets. Use `grid3.list_data()` to see available datasets."
+        )
+        return []
 
     @cache
     def info(

@@ -225,17 +225,17 @@ class Grid3(SyncBaseDataSource):
         data_name: str,
         state: Optional[str] = None,
         bbox: Optional[List[float]] = None,
-        aoi_geojson: Geometry = None,  # requires shapely, but check and let the user know they need to install shapely?
-        preview: bool = False,  # requires lonboard which also requires geopandas, so this must ensure there is lonboard and geopandas
+        aoi_geometry: Geometry = None,
+        preview: bool = False,  # requires lonboard
     ):
         feature_service = self.info(data_name, False)
 
         # only one parameter can be provided, so this check is to ensure that.
-        params = sum([state is not None, bbox is not None, aoi_geojson is not None])
+        params = sum([state is not None, bbox is not None, aoi_geometry is not None])
 
-        if params != 1:
+        if params > 1:
             raise ValueError(
-                "Exactly one parameter (state, bbox, or aoi_geojson) must be provided."
+                "Only one parameter (state, bbox, or aoi_geometry) can be provided."
             )
 
         # defaults
@@ -265,10 +265,10 @@ class Grid3(SyncBaseDataSource):
             esri_geometry = bbox
 
         # GeoJSON validation
-        if aoi_geojson:
+        if aoi_geometry:
             # update the geometry type
-            geometryType = GeodataUtils.geojson_to_esri_type(aoi_geojson["type"])
-            esri_geometry = GeodataUtils.geojson_to_esri_json(aoi_geojson)
+            geometryType = GeodataUtils.geojson_to_esri_type(aoi_geometry["type"])
+            esri_geometry = GeodataUtils.geojson_to_esri_json(aoi_geometry)
 
         params = {
             "where": f"{feature_service['layerObjectIdField']} > 0",  # this is required
@@ -282,7 +282,7 @@ class Grid3(SyncBaseDataSource):
         if esri_geometry:
             if bbox:
                 params.update({"geometry": ",".join(map(str, esri_geometry))})
-            if aoi_geojson or state:
+            if aoi_geometry or state:
                 params.update({"geometry": esri_geometry})
 
         max_features = feature_service["totalFeatures"]
@@ -419,7 +419,7 @@ if __name__ == "__main__":
         ],
     }
 
-    health_data_info = grid3.filter(search_results[2]["name"], "abuja")
+    health_data_info = grid3.filter(search_results[2]["name"])
 
     print(health_data_info)
     # preview the data

@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "nigeria-geodata"
-version = "0.1.6.dev"
+version = "0.1.7.dev"
 description = "Fast and efficient access to geospatial data for Nigeria. Ideal for developers and analysts working with Nigerian geospatial information."
 license = "LICENSE"
 authors = ["Emmanuel Jolaiya <jolaiyaemmanuel@gmail.com>"]
@@ -58,6 +58,7 @@ cli = ["typer"]
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.5.1"
 pre-commit = "^3.7.1"
+pytest = "^8.3.2"
 
 
 [build-system]

@@ -20,7 +20,7 @@ Nigeria-Geodata depends on the following packages:
 - ``httpx``
 - ``geopandas``
 
-How to install
+How to install as a python module
 ---------------
 ```pip install nigeria-geodata```
 
@@ -30,3 +30,6 @@ Get in touch
 
 Examples
 --------
+
+How does it work?
+----------------

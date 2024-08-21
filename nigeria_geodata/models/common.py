@@ -83,6 +83,8 @@ class EsriFeatureLayerInfo:
     """The date the data was last updated"""
     layerId: str
     """The id of the first layer"""
+    totalFeatures: int
+    """The total features available in the layer"""
     # service specific metadata
     serviceItemId: str
     """The Id of the service."""

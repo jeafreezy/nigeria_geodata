@@ -20,7 +20,7 @@ TODO - LOGO
 
 ##### todo - replace with actual url, same with mkdocs
 
-**Documentation**: <a href="https://nigeria_geodata.github.io" target="_blank">https://nigeria_geodata.github.io</a>
+**Documentation**: <a href="https://jeafreezy.github.io/nigeria_geodata/latest/" target="_blank">https://jeafreezy.github.io/nigeria_geodata/latest/</a>
 
 **Source Code**: <a href="https://github.com/jeafreezy/nigeria_geodata" target="_blank">https://github.com/jeafreezy/nigeria_geodata</a>
 
@@ -104,4 +104,4 @@ In addition to the great libraries we're resting upon, we would also like to tha
 
 ## License
 
-This project is licensed under the terms of the MIT license.
+This project is licensed under the terms of the MIT license. See [LICENSE.MD](https://github.com/jeafreezy/nigeria_geodata?tab=License-1-ov-file).

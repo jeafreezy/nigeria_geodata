@@ -21,9 +21,9 @@ classifiers = [
 ]
 
 [tool.poetry.urls]
-"Homepage" = "https://nigeria_geodata.github.io"
+"Homepage" = "https://jeafreezy.github.io/nigeria_geodata/latest/"
 "Repository" = "https://github.com/jeafreezy/nigeria_geodata"
-"Documentation" = "https://nigeria_geodata.github.io"
+"Documentation" = "https://jeafreezy.github.io/nigeria_geodata/latest/"
 "Bug Tracker" = "https://github.com/jeafreezy/nigeria_geodata/issues"
 
 

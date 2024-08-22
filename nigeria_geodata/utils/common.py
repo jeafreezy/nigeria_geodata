@@ -1,4 +1,4 @@
-from functools import cache
+from functools import lru_cache
 import datetime
 from typing import Any, Dict, Tuple
 
@@ -14,7 +14,7 @@ from nigeria_geodata.utils.exceptions import PackageNotFoundError
 
 class GeodataUtils:
     @staticmethod
-    @cache
+    @lru_cache(maxsize=None)
     def get_states() -> FeatureCollection:
         """
         Fetch the GeoJSON data from the github gist.

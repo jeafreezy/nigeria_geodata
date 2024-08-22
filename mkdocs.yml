@@ -6,9 +6,6 @@ site_author: Emmanuel Jolaiya & Samuel Adedoyin
 site_url: https://nigeria_geodata.github.io
 docs_dir: docs
 
-version:
-  provider: mike
-
 nav:
   - Nigeria Geodata:
       "index.md"

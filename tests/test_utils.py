@@ -306,7 +306,7 @@ def test_timestamp_to_datetime():
     timestamp_ms = 1652196544489
 
     # Expected datetime
-    expected_datetime = "2022-05-10 17:29:04.489000"
+    expected_datetime = "2022-05-10 15:29:04.489000+00:00"
 
     result = timestamp_to_datetime(timestamp_ms)
 

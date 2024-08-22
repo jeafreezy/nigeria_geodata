@@ -7,9 +7,9 @@ site_url: https://nigeria_geodata.github.io
 docs_dir: docs
 
 nav:
-  - Nigeria Geodata: "index.md"
-  - Examples:
-      - examples/index.md
+  - Nigeria Geodata:
+      "index.md"
+
       # Todo - add more examples and jupyter notebook
   - API Reference:
       - Data Sources:

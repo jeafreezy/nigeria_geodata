@@ -36,7 +36,7 @@ from nigeria_geodata.utils.common import (
 )
 
 from nigeria_geodata.utils.enums import NigeriaState, RequestMethod
-from nigeria_geodata.utils import logger
+from nigeria_geodata.utils.logger import logger
 
 
 class Grid3(SyncBaseDataSource):
@@ -174,7 +174,6 @@ class Grid3(SyncBaseDataSource):
         Connect to a FeatureServer and retrieve more information about it.
 
         Parameters:
-            id (int): The ID of the feature service.
             dataframe (bool): If True, returns the information as a pandas DataFrame.
                               If False, returns an EsriFeatureService object.
 
@@ -353,7 +352,8 @@ class AsyncGrid3(AsyncBaseDataSource):
         self.sync_grid3 = Grid3()
 
     async def _run_sync(self, func, *args, **kwargs):
-        return await asyncio.to_thread(func, *args, **kwargs)
+        loop = asyncio.get_running_loop()
+        return await loop.run_in_executor(None, func, *args, **kwargs)
 
     async def list_data(
         self, dataframe: bool = True

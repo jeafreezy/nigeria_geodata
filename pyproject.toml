@@ -64,6 +64,7 @@ pandas = "^2"
 geopandas = ">=0.13"
 pytest-asyncio = "^0.23.8"
 mkdocstrings = { extras = ["crystal", "python"], version = "^0.25.2" }
+lonboard = "^0.9.3"
 
 
 [tool.poetry.group.docs.dependencies]

@@ -174,7 +174,6 @@ class Grid3(SyncBaseDataSource):
         Connect to a FeatureServer and retrieve more information about it.
 
         Parameters:
-            id (int): The ID of the feature service.
             dataframe (bool): If True, returns the information as a pandas DataFrame.
                               If False, returns an EsriFeatureService object.
 

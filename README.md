@@ -8,15 +8,14 @@ TODO - LOGO
 
 [![PyPI][pypi_badge]][pypi_link]
 [![open_in_colab][colab_badge]][colab_notebook_link]
+[![python_versions][supported_python_versions_badge]][pypi_link]
 
-[pypi_badge]: https://d25lcipzij17d.cloudfront.net/badge.svg?id=py&r=r&ts=1683906897&type=6e&v=0.9.3&x2=0
+[pypi_badge]: https://img.shields.io/pypi/v/nigeria_geodata?color=%2334D058&label=pypi%20package
 [pypi_link]: https://pypi.org/project/nigeria_geodata/
 [colab_badge]: https://colab.research.google.com/assets/colab-badge.svg
 [colab_notebook_link]: https://colab.research.google.com/github/jeafreezy/nigeria_geodata/blob/main
+[supported_python_versions_badge]: https://img.shields.io/pypi/pyversions/fastapi.svg?color=%2334D058
 
-<a href="https://pypi.org/project/fastapi" target="_blank">
-    <img src="https://img.shields.io/pypi/pyversions/fastapi.svg?color=%2334D058" alt="Supported Python versions">
-</a>
 ---
 
 ##### todo - replace with actual url, same with mkdocs

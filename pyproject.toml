@@ -5,11 +5,13 @@ description = "Fast and efficient access to geospatial data for Nigeria. Ideal f
 license = "LICENSE"
 authors = ["Emmanuel Jolaiya <jolaiyaemmanuel@gmail.com>"]
 readme = "README.md"
+requires-python = ">=3.8"
 keywords = ["Nigeria", "geodata", "Grid3", "geospatial"]
 classifiers = [
   "Topic :: Software Development :: Libraries :: Python Modules",
   "Intended Audience :: Information Technology",
   "Intended Audience :: Science/Research",
+  "Programming Language :: Python :: 3 :: Only",
   "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3.8",
   "Programming Language :: Python :: 3.9",

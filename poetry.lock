@@ -2876,4 +2876,4 @@ standard = ["geopandas", "lonboard", "typer"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8"
-content-hash = "6a18d71ba9c6ebf403bd180da5334a917c7fb746f20e47393ad731481ca8aaea"
+content-hash = "9efffe4c5ac9ef5bb8d0b58f0703145951506ff07105bb7e288fb1f4015ed398"

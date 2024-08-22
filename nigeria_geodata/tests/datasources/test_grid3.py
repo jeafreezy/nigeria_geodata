@@ -1,7 +1,7 @@
 import pandas as pd
 from unittest.mock import MagicMock, patch
 import pytest
-from nigeria_geodata.datasources import Grid3
+from nigeria_geodata import Grid3, AsyncGrid3
 import geopandas as gpd
 
 from nigeria_geodata.models.common import (
@@ -10,6 +10,7 @@ from nigeria_geodata.models.common import (
 from lonboard._map import Map
 
 from nigeria_geodata.utils.enums import NigeriaState
+
 
 # Sample mock data
 mock_feature_services = [
@@ -330,3 +331,77 @@ def test_filter_errors(mock_get_feature_services, mock_make_request, mock_info):
         # validate invalid type
         grid3.filter(data_name="Service1", aoi_geometry=SAMPLE_GEOMETRY)
         assert exc_info == "The provided aoi_geometry is invalid"
+
+
+################## ASYNC TESTS ####################
+
+
+@pytest.mark.asyncio
+@patch("nigeria_geodata.Grid3.list_data")
+async def test_async_list_data(mock_list_data):
+    mock_list_data.return_value = [
+        EsriFeatureServiceBasicInfo(
+            name="Service1", url="http://example.com", type="FeatureServer"
+        )
+    ]
+
+    async_grid3 = AsyncGrid3()
+    result = await async_grid3.list_data(dataframe=False)
+
+    assert isinstance(result, list)
+    assert len(result) == 1
+    assert result[0].name == "Service1"
+
+
+@pytest.mark.asyncio
+@patch("nigeria_geodata.Grid3.search")
+async def test_async_search(mock_search):
+    mock_search.return_value = [
+        EsriFeatureServiceBasicInfo(
+            name="Service1", url="http://example.com", type="FeatureServer"
+        )
+    ]
+
+    async_grid3 = AsyncGrid3()
+    result = await async_grid3.search(query="Health", dataframe=False)
+
+    assert isinstance(result, list)
+    assert len(result) == 1
+    assert result[0].name == "Service1"
+
+
+@pytest.mark.asyncio
+@patch("nigeria_geodata.Grid3.filter")
+async def test_async_filter(mock_filter):
+    mock_filter.return_value = [
+        {
+            "features": [
+                {
+                    "geometry": {"type": "Point", "coordinates": [1, 2]},
+                    "properties": {"name": "Feature1"},
+                }
+            ]
+        }
+    ]
+
+    async_grid3 = AsyncGrid3()
+    result = await async_grid3.filter(
+        data_name="Service1", state="Lagos", preview=False
+    )
+
+    assert isinstance(result, list)
+    assert len(result) > 0
+
+
+@pytest.mark.asyncio
+@patch("nigeria_geodata.Grid3.info")
+async def test_async_info(mock_info):
+    mock_info.return_value = EsriFeatureServiceBasicInfo(
+        name="Service1", url="http://example.com", type="FeatureServer"
+    )
+
+    async_grid3 = AsyncGrid3()
+    result = await async_grid3.info(data_name="Service1", dataframe=False)
+
+    assert isinstance(result, EsriFeatureServiceBasicInfo)
+    assert result.name == "Service1"

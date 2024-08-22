@@ -305,7 +305,7 @@ class CheckDependencies:
             return viz
         except PackageNotFoundError as err:
             # Raise an error with a message to install the missing package
-            raise ImportError(
+            raise PackageNotFoundError(
                 "lonboard is required for map visualization.\n"
                 "Run `pip install lonboard`."
             ) from err

@@ -315,7 +315,10 @@ def timestamp_to_datetime(timestamp_ms: int):
     # Convert to seconds by dividing by 1000
     timestamp_sec = timestamp_ms / 1000
 
-    # Convert to datetime
-    date_time = datetime.datetime.fromtimestamp(timestamp_sec)
+    # Convert to UTC datetime
+    date_time = datetime.datetime.utcfromtimestamp(timestamp_sec)
+
+    # Add UTC timezone info to the datetime object
+    date_time = date_time.replace(tzinfo=datetime.timezone.utc)
 
     return date_time

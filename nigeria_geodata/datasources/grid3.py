@@ -36,7 +36,7 @@ from nigeria_geodata.utils.common import (
 )
 
 from nigeria_geodata.utils.enums import NigeriaState, RequestMethod
-from nigeria_geodata.utils import logger
+from nigeria_geodata.utils.logger import logger
 
 
 class Grid3(SyncBaseDataSource):

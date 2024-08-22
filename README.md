@@ -14,6 +14,9 @@ TODO - LOGO
 [colab_badge]: https://colab.research.google.com/assets/colab-badge.svg
 [colab_notebook_link]: https://colab.research.google.com/github/jeafreezy/nigeria_geodata/blob/main
 
+<a href="https://pypi.org/project/fastapi" target="_blank">
+    <img src="https://img.shields.io/pypi/pyversions/fastapi.svg?color=%2334D058" alt="Supported Python versions">
+</a>
 ---
 
 ##### todo - replace with actual url, same with mkdocs

@@ -60,7 +60,7 @@ jobs:
       - name: Run tests (all deps)
         # installing the extras and running the tests
         run: |
-          poetry install -E standart -E cli
+          poetry install -E standard -E cli
           poetry run pytest
 
       # Ensure docs build without warnings

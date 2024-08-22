@@ -97,7 +97,7 @@ class EsriFeatureLayerInfo:
     supportedExportFormats: str
     """The supported export formats."""
     capabilities: str
-    """The capabilitise of tshe feature server."""
+    """The capabilities of the feature server."""
     description: str
     """The long html description of the service. Usually contains the year the data was collected."""
     copyrightText: str

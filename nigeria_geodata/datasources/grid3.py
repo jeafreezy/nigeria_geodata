@@ -8,6 +8,7 @@ Date:
 
 """
 
+import asyncio
 from math import ceil
 from typing import Any, Dict, List, Optional, Union, TYPE_CHECKING
 
@@ -332,12 +333,42 @@ class Grid3(SyncBaseDataSource):
 
 
 class AsyncGrid3(AsyncBaseDataSource):
-    service_url: str = Config.get_service_url(DataSource.GRID3)
+    def __init__(self):
+        self.sync_grid3 = Grid3()
 
-    async def list_data(self):
-        # list available datasets in the data source
-        # preview = true to preview on a static map as thumbnail, interactive = true to preview on interactive map e.g lon board
-        ...
+    async def _run_sync(self, func, *args, **kwargs):
+        return await asyncio.to_thread(func, *args, **kwargs)
+
+    async def list_data(
+        self, dataframe: bool = True
+    ) -> Union[List[EsriFeatureServiceBasicInfo], Optional["pd.DataFrame"]]:
+        return await self._run_sync(self.sync_grid3.list_data, dataframe)
+
+    async def search(
+        self, query: str, dataframe: bool = True
+    ) -> Union[List[EsriFeatureServiceBasicInfo], List, Optional["pd.DataFrame"]]:
+        return await self._run_sync(self.sync_grid3.search, query, dataframe)
+
+    async def filter(
+        self,
+        data_name: str,
+        state: Optional[str] = None,
+        bbox: Optional[List[float]] = None,
+        aoi_geometry: Geometry = None,
+        preview: bool = False,
+    ) -> Union[
+        Optional["gpd.GeoDataFrame"],
+        Optional["Map"],
+        List[Dict[str, Any]],
+    ]:
+        return await self._run_sync(
+            self.sync_grid3.filter, data_name, state, bbox, aoi_geometry, preview
+        )
+
+    async def info(
+        self, data_name: str, dataframe: bool = True
+    ) -> Union[EsriFeatureLayerInfo, Optional["pd.DataFrame"]]:
+        return await self._run_sync(self.sync_grid3.info, data_name, dataframe)
 
     def __repr__(self) -> str:
         return "<AsyncGrid3DataSource>"

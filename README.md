@@ -1,32 +1,105 @@
-[![pypi](https://pypi.org/static/images/logo-small.8998e9d1.svg)](https://pypi.python.org/pypi/nigeria-geodata/)
-[![Actions Status](https://github.com/jeafreezy/nigeria_geodata/workflows/Tests/badge.svg)](https://github.com/jeafreezy/nigeria_geodata/actions?query=workflow%3ATests)
+# Nigeria Geodata
 
+TODO - LOGO
 
+<p align="center">
+    <em> A Python library for fast and efficient access to geospatial data for Nigeria.</em>
+</p>
 
-Nigeria Geodata
----------------
-Fast and efficient access to geospatial data for Nigeria. Ideal for developers and analysts working with Nigerian geospatial information.
+[![PyPI][pypi_badge]][pypi_link]
+[![open_in_colab][colab_badge]][colab_notebook_link]
 
-Introduction
-------------
-The Nigeria-Geodata tool is designed for Python developers, analysts, and programmers who need fast and efficient access to geospatial data for Nigeria. This tool simplifies the extraction and implementation of open geospatial data, making it easier to work with Nigerian geospatial information. Built specifically for Python users, Nigeria-Geopada ensures a smooth and intuitive experience, allowing users to seamlessly integrate geospatial data into their projects.
+[pypi_badge]: https://d25lcipzij17d.cloudfront.net/badge.svg?id=py&r=r&ts=1683906897&type=6e&v=0.9.3&x2=0
+[pypi_link]: https://pypi.org/project/nigeria_geodata/
+[colab_badge]: https://colab.research.google.com/assets/colab-badge.svg
+[colab_notebook_link]: https://colab.research.google.com/github/jeafreezy/nigeria_geodata/blob/main
 
-Currently integrating GRID3 data, Nigeria-Geodata provides extensive geospatial coverage, making it a comprehensive resource for those working with Nigerian geospatial information.
+---
 
-Install
---------
-Nigeria-Geodata depends on the following packages:
-- ``pandas``
-- ``httpx``
-- ``geopandas``
+##### todo - replace with actual url, same with mkdocs
 
-How to install
----------------
-```pip install nigeria-geodata```
+**Documentation**: <a href="https://nigeria_geodata.github.io" target="_blank">https://nigeria_geodata.github.io</a>
 
-Get in touch
---------------
+**Source Code**: <a href="https://github.com/jeafreezy/nigeria_geodata" target="_blank">https://github.com/jeafreezy/nigeria_geodata</a>
 
+---
 
-Examples
---------
+Nigeria Geodata is a fast and efficient Python client for accessing geospatial data for Nigeria.
+
+The key features are:
+
+- **High Performance**: Offers exceptional speed with both synchronous and asynchronous support to cater to different use cases and performance needs
+- **Map Visualization**: Provides smooth map visualization using the fast [lonboard](https://developmentseed.org/lonboard/latest/) library.
+- **Lightweight**: Minimal dependencies—just one required ([httpx](https://www.python-httpx.org/)), with optional extras available for additional features.
+- **User-Friendly**: Easy to use and learn; set up quickly with just a few lines of code.
+- **CLI Support**: Intuitive command-line interface built with Typer.
+- **Real-Time Data**: Fetches up-to-date data directly from the [Grid3](https://grid3.org/) database (more to come!), ensuring you always work with the latest information.
+- **Advanced Filtering**: Allows for precise filtering based on state names (e.g FCT, Lagos), bounding boxes (bbox), and areas of interest (AOI).
+
+## Dependency
+
+nigeria_geodata depends on only one core package:
+
+- [Httpx](https://www.python-httpx.org/) - for the api requests.
+
+## Additional Optional Dependencies
+
+There are some additional dependencies you might want to install.
+
+- [Typer](https://typer.tiangolo.com/) - for cli support.
+- [Lonboard](https://developmentseed.org/lonboard/latest/) - for map visualization.
+- [Geopandas](https://geopandas.org/en/stable/) - to return the data as a geodataframe.
+- [Pandas](https://pandas.pydata.org/) - to return the data as a dataframe.
+
+## Installation
+
+Create and activate a virtual environment and then install nigeria_geodata:
+
+To install the lightweight version using pip:
+
+```py
+pip install nigeria-geodata
+```
+
+This version will return all the data as Python objects, mostly as a list, and list of dicts.
+
+To install it with `typer`, `lonboard` and `geopandas`:
+
+```py
+pip install nigeria-geodata['standard']
+```
+
+This version will allow you to get the data as a dataframe, geodataframe, or an interactive mapview.
+
+```py
+pip install nigeria-geodata['cli']
+```
+
+This version provides CLI support for the package. It is also lightweight -- It will return the data as pure Python objects.
+
+## Get Started
+
+For the simplest usecase, search for all the available health care data in Nigeria.
+
+```py
+# Sync
+from nigeria_geodata import Grid3, AsyncGrid3
+search_results = Grid3().search("health")
+search_results
+# this will return a dataframe with all the available health care datasets.
+
+# Async
+search_results = await AsyncGrid3().search("health")
+search_results
+# this will return a dataframe with all the available health care datasets.
+```
+
+Under the hood, this makes an api request to the Grid3 database to get the datasets. Refer to the documentation and examples for more use cases.
+
+## Acknowledgment
+
+In addition to the great libraries we're resting upon, we would also like to thank [Grid3](https://grid3.org/) for providing real-time and comprehensive geospatial data that powers this library.
+
+## License
+
+This project is licensed under the terms of the MIT license.

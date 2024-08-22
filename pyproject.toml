@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "nigeria-geodata"
-version = "0.1.2"
+version = "0.1.2beta"
 description = "Fast and efficient access to geospatial data for Nigeria. Ideal for developers and analysts working with Nigerian geospatial information."
 license = "LICENSE"
 authors = ["Emmanuel Jolaiya <jolaiyaemmanuel@gmail.com>"]

@@ -132,6 +132,11 @@ class Grid3(SyncBaseDataSource):
     def search(
         self, query: str, dataframe: bool = True
     ) -> Union[List[EsriFeatureServiceBasicInfo], List, Optional["pd.DataFrame"]]:
+        """Search the datasource
+
+        Returns:
+            _type_: _description_
+        """
         search_results = list(
             filter(
                 lambda feature_server: query.upper()
@@ -231,6 +236,17 @@ class Grid3(SyncBaseDataSource):
         Optional["Map"],
         List[Dict[str, Any]],
     ]:
+        """Filters the datasource.
+
+        Raises:
+            ValueError: _description_
+            ValueError: _description_
+            ValueError: _description_
+            ValueError: _description_
+
+        Returns:
+            _type_: _description_
+        """
         feature_service = self.info(data_name, False)
 
         # only one parameter can be provided, so this check is to ensure that.
@@ -342,11 +358,21 @@ class AsyncGrid3(AsyncBaseDataSource):
     async def list_data(
         self, dataframe: bool = True
     ) -> Union[List[EsriFeatureServiceBasicInfo], Optional["pd.DataFrame"]]:
+        """List the datasets
+
+        Returns:
+            _type_: _description_
+        """
         return await self._run_sync(self.sync_grid3.list_data, dataframe)
 
     async def search(
         self, query: str, dataframe: bool = True
     ) -> Union[List[EsriFeatureServiceBasicInfo], List, Optional["pd.DataFrame"]]:
+        """Search the datasets
+
+        Returns:
+            _type_: _description_
+        """
         return await self._run_sync(self.sync_grid3.search, query, dataframe)
 
     async def filter(
@@ -361,6 +387,11 @@ class AsyncGrid3(AsyncBaseDataSource):
         Optional["Map"],
         List[Dict[str, Any]],
     ]:
+        """Filter the datasets
+
+        Returns:
+            _type_: _description_
+        """
         return await self._run_sync(
             self.sync_grid3.filter, data_name, state, bbox, aoi_geometry, preview
         )
@@ -368,6 +399,11 @@ class AsyncGrid3(AsyncBaseDataSource):
     async def info(
         self, data_name: str, dataframe: bool = True
     ) -> Union[EsriFeatureLayerInfo, Optional["pd.DataFrame"]]:
+        """Get information about the dataset
+
+        Returns:
+            _type_: _description_
+        """
         return await self._run_sync(self.sync_grid3.info, data_name, dataframe)
 
     def __repr__(self) -> str:

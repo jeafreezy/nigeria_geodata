@@ -1,0 +1,82 @@
+site_name: nigeria_geodata
+repo_name: jeafreezy/nigeria_geodata
+repo_url: https://github.com/jeafreezy/nigeria_geodata
+site_description: Fast and efficient access to geospatial data for Nigeria.
+site_author: Emmanuel Jolaiya & Samuel Adedoyin
+site_url: https://nigeria_geodata.github.io
+docs_dir: docs
+
+nav:
+  - Nigeria Geodata: "index.md"
+  - Examples:
+      - examples/index.md
+      # Todo - add more examples and jupyter notebook
+  - API Reference:
+      - Data Sources:
+          - Grid3:
+              - api/datasources/grid3/sync.md
+              - api/datasources/grid3/async.md
+      - Utils:
+          - api/utils/logging.md
+          - api/utils/enums.md
+          - api/utils/exceptions.md
+
+  - Benchmark: "benchmark.md"
+
+watch:
+  - nigeria_geodata
+  - docs
+
+theme:
+  name: material
+  palette:
+    # Palette toggle for automatic mode
+    - media: "(prefers-color-scheme)"
+      toggle:
+        icon: material/brightness-auto
+        name: Switch to light mode
+
+    # Palette toggle for light mode
+    - media: "(prefers-color-scheme: light)"
+      primary: green
+      accent: white
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+
+    # Palette toggle for dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: green
+      accent: white
+      toggle:
+        icon: material/brightness-4
+        name: Switch to system preference
+
+  font:
+    text: Roboto
+    code: Roboto Mono
+
+  features:
+    - content.code.annotate
+    - content.code.select
+    - content.code.copy
+    - navigation.indexes
+    - navigation.instant
+    - navigation.tracking
+    - search.suggest
+    - search.share
+
+plugins:
+  - search
+  - social
+  - mkdocstrings
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences

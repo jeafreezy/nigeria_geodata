@@ -79,7 +79,14 @@ def docs():
 
 # LIST DATA
 @grid3_app.command("list_data")
-def grid3_list_data():
+def grid3_list_data(
+    table: Annotated[
+        bool,
+        typer.Option(
+            help="If to render results as a table or not. Use --table to enable table (default) or --notable to disable table."
+        ),
+    ] = True,
+):
     """
     List the available datasets for Nigeria from the GRID3 database.
     """
@@ -89,11 +96,21 @@ def grid3_list_data():
         progress.start_task(task)
         results = grid3.list_data(dataframe=False)
         progress.update(task, completed=True)
-        render_as_table(results, "Available datasets")
+        if table:
+            render_as_table(results, "Available datasets")
+        else:
+            print(results)
 
 
 @async_grid3_app.command("list_data")
-async def async_grid3_list_data():
+async def async_grid3_list_data(
+    table: Annotated[
+        bool,
+        typer.Option(
+            help="If to render results as a table or not. Use --table to enable table (default) or --notable to disable table."
+        ),
+    ] = True,
+):
     """
     Asynchornously list the available datasets for Nigeria from the GRID3 database.
     """
@@ -103,13 +120,22 @@ async def async_grid3_list_data():
         progress.start_task(task)
         results = await agrid3.list_data(dataframe=False)
         progress.update(task, completed=True)
-        render_as_table(results, "Available datasets")
+        if table:
+            render_as_table(results, "Available datasets")
+        else:
+            print(results)
 
 
 # SEARCH
 @grid3_app.command("search")
 def grid3_search(
     query: Annotated[str, typer.Option(help="The search query.")],
+    table: Annotated[
+        bool,
+        typer.Option(
+            help="If to render results as a table or not. Use --table to enable table (default) or --notable to disable table."
+        ),
+    ] = True,
 ):
     """Search for data from the GRID3 database.
 
@@ -122,7 +148,7 @@ def grid3_search(
         progress.start_task(task)
         search_results = grid3.search(query, False)
         progress.update(task, completed=True)
-        if len(search_results) > 0:
+        if len(search_results) > 0 and table:
             render_as_table(search_results, f"Search Results for '{query}'")
             print(f"Search returned {len(search_results)} results.")
         else:
@@ -132,6 +158,12 @@ def grid3_search(
 @async_grid3_app.command("search")
 async def async_grid3_search(
     query: Annotated[str, typer.Option(help="The search query.")],
+    table: Annotated[
+        bool,
+        typer.Option(
+            help="If to render results as a table or not. Use --table to enable table (default) or --notable to disable table."
+        ),
+    ] = True,
 ):
     """Asynchornously search for data from the GRID3 database.
 
@@ -144,7 +176,7 @@ async def async_grid3_search(
         progress.start_task(task)
         search_results = await agrid3.search(query, False)
         progress.update(task, completed=True)
-        if len(search_results) > 0:
+        if len(search_results) > 0 and table:
             render_as_table(search_results, f"Search Results for '{query}'")
             print(f"Search returned {len(search_results)} results.")
         else:
@@ -208,11 +240,8 @@ def grid3_filter(
             geodataframe=False,
         )
         progress.update(task, completed=True)
-        if len(search_results) > 0:
-            if table:
-                render_as_table(search_results, f"Filtering results for '{data_name}'")
-            else:
-                print(search_results)
+        if len(search_results) > 0 and table:
+            render_as_table(search_results, f"Filtering results for '{data_name}'")
         else:
             print(search_results)
 
@@ -272,11 +301,8 @@ async def async_grid3_filter(
             geodataframe=False,
         )
         progress.update(task, completed=True)
-        if len(search_results) > 0:
-            if table:
-                render_as_table(search_results, f"Filtering results for '{data_name}'")
-            else:
-                print(search_results)
+        if len(search_results) > 0 and table:
+            render_as_table(search_results, f"Filtering results for '{data_name}'")
         else:
             print(search_results)
 

@@ -1,3 +1,24 @@
+"""
+Data models for nigeria_geodata.
+
+This module defines data structures used throughout the nigeria_geodata package, utilizing Python's
+dataclasses for easy initialization and immutability (where applicable). The models represent
+geospatial data and Esri-specific structures used for handling feature layers, geometries, and services.
+
+Classes:
+    - DataSourceInfo: Basic information about a data source (name, URL, and description).
+    - EsriFeatureServiceBasicInfo: Basic metadata for an Esri feature service.
+    - EsriFeatureLayerBasicInfo: Information about a basic Esri feature layer (layer properties, visibility, scales, etc.).
+    - EsriFeatureLayerDetailedInfo: Extended metadata for an Esri feature layer.
+    - EsriSpatialReference: Represents spatial reference systems using WKID and latest WKID values.
+    - EsriFeatureServiceFullExtent: Defines the bounding box (extent) for an Esri feature service.
+    - EsriGeometryBbox: Stores the bounding box for geometry data.
+    - EsriFeatureLayerInfo: A comprehensive model that stores relevant information about an Esri feature layer and service.
+    - Geometry: A generic geometry object supporting various GeoJSON geometry types.
+    - Feature: A GeoJSON feature consisting of geometry and properties.
+    - FeatureCollection: A collection of GeoJSON features (type "FeatureCollection").
+"""
+
 from dataclasses import dataclass, field
 from typing import List, Dict, Union, Any
 

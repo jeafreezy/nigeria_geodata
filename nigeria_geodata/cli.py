@@ -1,3 +1,31 @@
+"""
+Module: cli.py
+
+Command-line interface (CLI) for interacting with the GRID3 data source.
+
+This module provides commands for managing and querying the GRID3 data source.
+It supports both synchronous and asynchronous operations, allowing users to
+list, search, filter, and retrieve information about datasets.
+
+Authors:
+    Emmanuel Jolaiya
+    Samuel Adedoyin
+
+Date:
+    24/08/2024
+
+Commands:
+    - docs: Launches the documentation website.
+    - grid3 list-data: Lists available datasets from the GRID3 database.
+    - async-grid3 list-data: Asynchronously lists available datasets from the GRID3 database.
+    - grid3 search: Searches for data from the GRID3 database.
+    - async-grid3 search: Asynchronously searches for data from the GRID3 database.
+    - grid3 filter: Filters data from the GRID3 database.
+    - async-grid3 filter: Asynchronously filters data from the GRID3 database.
+    - grid3 info: Retrieves information about a specific dataset from the GRID3 database.
+    - async-grid3 info: Asynchronously retrieves information about a specific dataset from the GRID3 database.
+"""
+
 import json
 from typing import Any, Dict, List
 import typer
@@ -49,10 +77,11 @@ app.add_typer(async_grid3_app, name="async-grid3")
 
 
 def render_as_table(data: List[Dict[str, Any]], title: str):
-    """Utility function to render search results as table to replace rendering a dataframe in the console.
+    """
+    Renders a list of dictionaries as a table.
 
     Args:
-        data (Dict[str, Any]): The data to render.
+        data (List[Dict[str, Any]]): The data to render as a table.
         title (str): The title for the table.
     """
     # Create a table
@@ -71,7 +100,7 @@ def render_as_table(data: List[Dict[str, Any]], title: str):
 @app.command("docs")
 def docs():
     """
-    Launch the documentation
+    Launches the documentation website.
     """
     print("Opening documentation website ...")
     typer.launch("https://jeafreezy.github.io/nigeria_geodata/latest/")
@@ -88,7 +117,10 @@ def grid3_list_data(
     ] = True,
 ):
     """
-    List the available datasets for Nigeria from the GRID3 database.
+    Lists the available datasets for Nigeria from the GRID3 database.
+
+    Args:
+        table (bool): If True, renders results as a table; otherwise, prints the results directly.
     """
     with Progress(transient=True) as progress:
         task = progress.add_task("[green]Fetching datasets", total=None)
@@ -112,7 +144,10 @@ async def async_grid3_list_data(
     ] = True,
 ):
     """
-    Asynchornously list the available datasets for Nigeria from the GRID3 database.
+    Asynchronously lists the available datasets for Nigeria from the GRID3 database.
+
+    Args:
+        table (bool): If True, renders results as a table; otherwise, prints the results directly.
     """
     with Progress(transient=True) as progress:
         task = progress.add_task("[green]Fetching datasets", total=None)
@@ -137,10 +172,12 @@ def grid3_search(
         ),
     ] = True,
 ):
-    """Search for data from the GRID3 database.
+    """
+    Searches for data from the GRID3 database.
 
     Args:
-        query (Annotated[str, typer.Option, optional): The search query.. Defaults to "The search query.")].
+        query (str): The search query.
+        table (bool): If True, renders results as a table; otherwise, prints the results directly.
     """
     with Progress(transient=True) as progress:
         task = progress.add_task(f"[green]Searching for '{query}' ...", total=None)
@@ -165,10 +202,12 @@ async def async_grid3_search(
         ),
     ] = True,
 ):
-    """Asynchornously search for data from the GRID3 database.
+    """
+    Asynchronously searches for data from the GRID3 database.
 
     Args:
-        query (Annotated[str, typer.Option, optional): The search query.. Defaults to "The search query.")].
+        query (str): The search query.
+        table (bool): If True, renders results as a table; otherwise, prints the results directly.
     """
     with Progress(transient=True) as progress:
         task = progress.add_task(f"[green]Searching for '{query}' ...", total=None)
@@ -217,14 +256,15 @@ def grid3_filter(
         ),
     ] = True,
 ):
-    """Filter for data from the GRID3 database.
+    """
+    Filters data from the GRID3 database.
 
     Args:
-        data_name (Annotated[str, typer.Option, optional): _description_. Defaults to "The name of the data to filter.")].
-        state (Annotated[ str, typer.Option, optional): _description_. Defaults to f"The name of the state to filter for. Any from {[x.name for x in NigeriaState]}" ), ]=None.
-        bbox (Annotated[ str, typer.Option, optional): _description_. Defaults to "The bounding box to filter with i.e 'min_x, min_y, max_x, max_y'. e.g --bbox '20.0, 12.3, 21.4, 34.5'" ), ]=None.
-        aoi_geometry (_type_, optional): _description_. Defaults to "The aoi as a GeoJSON geometry string e.g --aoi '{'type': 'Point', 'coordinates': [30, 10]}'" ), ]=None.
-        table (Annotated[ bool, typer.Option, optional): _description_. Defaults to "If to render results as a table or not."), ]=True.
+        data_name (str): The name of the data to filter.
+        state (str, optional): The name of the state to filter for.
+        bbox (str, optional): The bounding box to filter with.
+        aoi_geometry (str, optional): The area of interest as a GeoJSON geometry string.
+        table (bool): If True, renders results as a table; otherwise, prints the results directly.
     """
 
     with Progress(transient=True) as progress:
@@ -279,14 +319,15 @@ async def async_grid3_filter(
         ),
     ] = True,
 ):
-    """Asynchornously filter for data from the GRID3 database.
+    """
+    Asynchronously filters data from the GRID3 database.
 
     Args:
-        data_name (Annotated[str, typer.Option, optional): _description_. Defaults to "The name of the data to filter.")].
-        state (Annotated[ str, typer.Option, optional): _description_. Defaults to f"The name of the state to filter for. Any from {[x.name for x in NigeriaState]}" ), ]=None.
-        bbox (Annotated[ str, typer.Option, optional): _description_. Defaults to "The bounding box to filter with i.e 'min_x, min_y, max_x, max_y'. e.g --bbox '20.0, 12.3, 21.4, 34.5'" ), ]=None.
-        aoi_geometry (_type_, optional): _description_. Defaults to "The aoi as a GeoJSON geometry string e.g --aoi '{'type': 'Point', 'coordinates': [30, 10]}'" ), ]=None.
-        table (Annotated[ bool, typer.Option, optional): _description_. Defaults to "If to render results as a table or not."), ]=True.
+        data_name (str): The name of the data to filter.
+        state (str, optional): The name of the state to filter for.
+        bbox (str, optional): The bounding box to filter with.
+        aoi_geometry (str, optional): The area of interest as a GeoJSON geometry string.
+        table (bool): If True, renders results as a table; otherwise, prints the results directly.
     """
     with Progress(transient=True) as progress:
         task = progress.add_task(f"[green]Filtering {data_name} data...", total=None)
@@ -316,10 +357,11 @@ def grid3_info(
         ),
     ],
 ):
-    """Get more information about a dataset.
+    """
+    Retrieves information about a specific dataset from the GRID3 database.
 
     Args:
-        data_name (Annotated[ str, typer.Option, optional): _description_. Defaults to "The name of the data to get information on. e.g --data-name Nigeria_Health..." ), ].
+        data_name (str): The name of the data to get information on.
     """
     with Progress(transient=True) as progress:
         task = progress.add_task(
@@ -341,10 +383,11 @@ async def async_grid3_info(
         ),
     ],
 ):
-    """Asynchornously get more information about a dataset.
+    """
+    Asynchronously retrieves information about a specific dataset from the GRID3 database.
 
     Args:
-        data_name (Annotated[ str, typer.Option, optional): _description_. Defaults to "The name of the data to get information on. e.g --data-name Nigeria_Health..." ), ].
+        data_name (str): The name of the data to get information on.
     """
 
     with Progress(transient=True) as progress:

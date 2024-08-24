@@ -1,3 +1,30 @@
+"""
+Common Utilities Modules
+
+This module provides utility functions and classes for handling geospatial data
+related to Nigeria. It includes functionalities for fetching state boundaries,
+converting GeoJSON to ESRI formats, validating GeoJSON geometries, and checking
+for optional dependencies.
+
+Authors:
+    Emmanuel Jolaiya
+    Samuel Adedoyin
+
+Date:
+    24/08/2024
+
+Classes:
+    GeodataUtils: Provides methods for fetching and processing Nigerian state
+        boundary data, converting between GeoJSON and ESRI formats, and validating
+        GeoJSON geometries.
+    CheckDependencies: Provides methods to check and import optional dependencies
+        like pandas, geopandas, typer, and lonboard.
+
+Functions:
+    timestamp_to_datetime: Converts a timestamp in milliseconds to a timezone-aware
+        UTC datetime object.
+"""
+
 from functools import lru_cache
 import datetime
 from typing import TYPE_CHECKING, Any, Dict, Tuple
@@ -14,14 +41,19 @@ from nigeria_geodata.utils.exceptions import PackageNotFoundError
 
 
 class GeodataUtils:
+    """
+    A utility class for geodata operations including fetching state boundaries,
+    converting GeoJSON types to ESRI types, and validating GeoJSON geometries.
+    """
+
     @staticmethod
     @lru_cache(maxsize=None)
     def get_states() -> FeatureCollection:
         """
-        Fetch the GeoJSON data from the github gist.
+        Fetch the GeoJSON data for Nigerian states from a specified service URL.
 
         Returns:
-            Dict: The GeoJSON data as a dictionary.
+            FeatureCollection: The GeoJSON data as a dictionary.
         """
         service_url: str = Config.get_service_url(
             DataSource.NGSA, "NIGERIA_STATES_BOUNDARY_URL"
@@ -32,13 +64,16 @@ class GeodataUtils:
     @staticmethod
     def get_state_geometry(state_name: str) -> Tuple[float, float, float, float]:
         """
-        Get the bounding box for a given state.
+        Retrieve the bounding box for a given Nigerian state.
 
         Args:
-            state_name (str): The name of the state.
+            state_name (str): The name of the state to retrieve.
 
         Returns:
-            Tuple[float, float, float, float]: The bounding box (minx, miny, maxx, maxy).
+            Tuple[float, float, float, float]: The bounding box coordinates (minx, miny, maxx, maxy).
+
+        Raises:
+            ValueError: If the state is not found in the GeoJSON data.
         """
 
         states_geojson = GeodataUtils.get_states()
@@ -61,6 +96,15 @@ class GeodataUtils:
     def geojson_to_esri_type(geojson_type: str) -> str:
         """
         Convert a GeoJSON geometry type to an ESRI geometry type.
+
+        Args:
+            geojson_type (str): The GeoJSON geometry type.
+
+        Returns:
+            str: The corresponding ESRI geometry type.
+
+        Raises:
+            ValueError: If the GeoJSON type is unsupported.
         """
         geojson_to_esri = {
             "Point": "esriGeometryPoint",
@@ -77,9 +121,18 @@ class GeodataUtils:
     @staticmethod
     def geojson_to_esri_json(geojson_data: "Polygon"):
         """
-        Convert a GeoJSON geometry type to an ESRI JSON.
+        Convert GeoJSON geometry data to an ESRI JSON format.
+
+        Args:
+            geojson_data (Polygon): The GeoJSON geometry data.
+
+        Returns:
+            Dict[str, Any]: The ESRI JSON format of the geometry.
+
+        Raises:
+            ValueError: If the GeoJSON type is unsupported.
         """
-        # ref - https://developers.arcgis.com/rest/services-reference/enterprise/geometry-objects/
+        # Reference - https://developers.arcgis.com/rest/services-reference/enterprise/geometry-objects/
         if geojson_data["type"] == "Point":
             esri_json = {
                 "x": geojson_data["coordinates"][0],
@@ -107,10 +160,10 @@ class GeodataUtils:
     @staticmethod
     def validate_geojson_geometry(geometry: Dict[str, Any]) -> bool:
         """
-        Validates the structure and coordinates of a GeoJSON geometry.
+        Validate the structure and coordinates of a GeoJSON geometry.
 
-        Parameters:
-            geometry (Dict): The GeoJSON geometry to validate.
+        Args:
+            geometry (Dict[str, Any]): The GeoJSON geometry to validate.
 
         Returns:
             bool: True if the geometry is valid, False otherwise.
@@ -220,11 +273,14 @@ class GeodataUtils:
 
 
 class CheckDependencies:
+    """
+    A utility class for checking and importing optional dependencies.
+    """
+
     @staticmethod
     def pandas():
         """
         Check if the 'pandas' module is installed and return it if available.
-        Raises an error with instructions if the module is not found.
 
         Returns:
             module: The imported 'pandas' module.
@@ -247,7 +303,6 @@ class CheckDependencies:
     def geopandas():
         """
         Check if the 'geopandas' module is installed and return it if available.
-        Raises an error with instructions if the module is not found.
 
         Returns:
             module: The imported 'geopandas' module.
@@ -270,7 +325,6 @@ class CheckDependencies:
     def typer():
         """
         Check if the 'typer' module is installed and return it if available.
-        Raises an error with instructions if the module is not found.
 
         Returns:
             module: The imported 'typer' module.
@@ -292,13 +346,12 @@ class CheckDependencies:
     def lonboard():
         """
         Check if the 'lonboard' module is installed and return it if available.
-        Raises an error with instructions if the module is not found.
 
         Returns:
             module: The imported 'lonboard' module.
 
         Raises:
-            ImportError: If 'lonboard' is not installed.
+            PackageNotFoundError: If 'lonboard' is not installed.
         """
         try:
             from lonboard import viz
@@ -312,7 +365,25 @@ class CheckDependencies:
             ) from err
 
 
-def timestamp_to_datetime(timestamp_ms: int):
+def timestamp_to_datetime(timestamp_ms: int) -> datetime.datetime:
+    """
+    Converts a timestamp in milliseconds to a timezone-aware UTC datetime object.
+
+    Args:
+        timestamp_ms (int): The timestamp in milliseconds since the Unix epoch (January 1, 1970).
+
+    Returns:
+        datetime.datetime: A timezone-aware datetime object representing the input timestamp in UTC.
+
+    Example:
+        >>> timestamp_to_datetime(1633024800000)
+        datetime.datetime(2021, 10, 1, 0, 0, tzinfo=datetime.timezone.utc)
+
+    Notes:
+        - The input timestamp is expected to be in milliseconds, so it is divided by 1000
+          to convert it to seconds for compatibility with `datetime.utcfromtimestamp`.
+        - The resulting datetime is set to UTC timezone using `datetime.timezone.utc`.
+    """
     # Convert to seconds by dividing by 1000
     timestamp_sec = timestamp_ms / 1000
 

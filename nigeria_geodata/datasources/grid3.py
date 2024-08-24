@@ -303,7 +303,11 @@ class Grid3(SyncBaseDataSource):
         aoi_geometry: Geometry = None,
         preview: bool = False,
         geodataframe: bool = True,
-    ):
+    ) -> Union[
+        Optional["gpd.GeoDataFrame"],
+        Optional["Map"],
+        List[Dict[str, Any]],
+    ]:
         """
         Filter datasets based on specified criteria and retrieve the results.
 

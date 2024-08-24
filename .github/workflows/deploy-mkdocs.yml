@@ -32,11 +32,10 @@ jobs:
           virtualenvs-in-project: true
           installer-parallel: true
 
-      - name: Install dependencies
-        run: poetry install --with docs --no-interaction --no-root
-
-      - name: Generate CLI Documentation
-        run: poetry run typer nigeria_geodata.cli utils docs --output docs/cli/index.md
+      - name: Install dependencies and generate CLI docs
+        run: |
+          poetry install --with docs --no-interaction --no-root
+          poetry run typer nigeria_geodata.cli utils docs --output docs/cli/index.md
 
       - name: Commit and Push CLI Documentation Changes
         run: |

@@ -1,23 +1,19 @@
 name: Publish docs via GitHub Pages
-
-# Based on - https://github.com/developmentseed/lonboard/blob/main/.github/workflows/deploy-mkdocs.yml
-
-# Only run on new tags starting with `v`
 on:
   push:
-    tags:
-      - "v*"
-  workflow_dispatch:
-
+    branches:
+      - main
+permissions:
+  contents: write
 jobs:
-  build:
-    name: Deploy docs
+  deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        # We need to additionally fetch the gh-pages branch for mike deploy
-        with:
-          fetch-depth: 0
+      - name: Configure Git Credentials
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
 
       - name: Set up Python 3.11
         id: setup-python
@@ -33,33 +29,15 @@ jobs:
           virtualenvs-in-project: true
           installer-parallel: true
 
-      - name: Load cached venv
-        id: cached-poetry-dependencies
-        uses: actions/cache@v4
+      - run: echo "cache_id=$(date --utc '+%V')" >> $GITHUB_ENV
+      - uses: actions/cache@v4
         with:
-          path: .venv
-          key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
-
+          key: mkdocs-material-${{ env.cache_id }}
+          path: .cache
+          restore-keys: |
+            mkdocs-material-
       - name: Install dependencies
         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
         run: poetry install --no-interaction --no-root
-
-      - name: Install root project
-        run: poetry install --no-interaction
-
-      - name: Deploy docs
-        env:
-          GIT_COMMITTER_NAME: CI
-          GIT_COMMITTER_EMAIL: ci-bot@example.com
-        run: |
-          # Get most recent git tag
-          # https://stackoverflow.com/a/7261049
-          # We don't use {{github.ref_name}} because if triggered manually, it
-          # will be a branch name instead of a tag version.
-          VERSION=$(git describe --tags --abbrev=0)
-
-          # Only push docs if no letters in git tag after the first character
-          # (usually the git tag will have v as the first character)
-          if ! echo $VERSION | sed 's/^.//' | grep -q "[A-Za-z]"; then
-            poetry run mike deploy $VERSION latest --update-aliases --push
-          fi
+      - run: poetry add mkdocs-material
+      - run: mkdocs gh-deploy --force

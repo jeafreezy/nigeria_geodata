@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "nigeria-geodata"
-version = "0"
+version = "0.0.0"
 description = "Fast and efficient access to geospatial data for Nigeria. Ideal for developers and analysts working with Nigerian geospatial information."
 license = "LICENSE"
 authors = ["Emmanuel Jolaiya <jolaiyaemmanuel@gmail.com>"]
@@ -27,8 +27,10 @@ classifiers = [
 "Bug Tracker" = "https://github.com/jeafreezy/nigeria_geodata/issues"
 
 
-[tool.poetry-version-plugin]
-source = "init"
+[tool.poetry-dynamic-versioning]
+enable = true
+vcs = 'git'
+style = "semver"
 
 [tool.hatch.build.targets.sdist]
 exclude = [
@@ -81,5 +83,5 @@ termynal = "^0.12.1"
 mkdocs-typer = "^0.0.3"
 
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["poetry-core>=1.0.0", "poetry-dynamic-versioning>=1.0.0,<2.0.0"]
+build-backend = "poetry_dynamic_versioning.backend"

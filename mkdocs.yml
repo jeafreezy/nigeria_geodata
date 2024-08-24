@@ -71,9 +71,6 @@ plugins:
   - search
   - social
   - mkdocstrings
-  - mike:
-      alias_type: "copy"
-      canonical_version: "latest"
 
 markdown_extensions:
   - pymdownx.highlight:

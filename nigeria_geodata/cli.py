@@ -98,12 +98,12 @@ def render_as_table(data: List[Dict[str, Any]], title: str):
 
 # DOCS
 @app.command("docs")
-def docs():
+def documentation():
     """
     Launches the documentation website.
     """
     print("Opening documentation website ...")
-    typer.launch("https://jeafreezy.github.io/nigeria_geodata/latest/")
+    typer.launch("https://jeafreezy.github.io/nigeria_geodata")
 
 
 # LIST DATA

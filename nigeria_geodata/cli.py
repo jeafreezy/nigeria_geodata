@@ -78,7 +78,7 @@ def docs():
 
 
 # LIST DATA
-@grid3_app.command("list_data")
+@grid3_app.command("list-data")
 def grid3_list_data(
     table: Annotated[
         bool,
@@ -102,7 +102,7 @@ def grid3_list_data(
             print(results)
 
 
-@async_grid3_app.command("list_data")
+@async_grid3_app.command("list-data")
 async def async_grid3_list_data(
     table: Annotated[
         bool,

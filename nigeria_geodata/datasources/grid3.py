@@ -95,7 +95,7 @@ class Grid3(SyncBaseDataSource):
         This method checks if a dataset with the given name exists within the available
         Grid3 feature services. If it doesn't exist, it raises a ValueError.
 
-        Parameters:
+        Args:
             data_name (str): The name of the dataset to search for.
 
         Returns:
@@ -122,7 +122,7 @@ class Grid3(SyncBaseDataSource):
         This method makes a request to the Grid3 server to count the number of features
         in the dataset by performing a statistics query.
 
-        Parameters:
+        Args:
             service_url (str): The URL of the feature service to query.
 
         Returns:
@@ -157,7 +157,7 @@ class Grid3(SyncBaseDataSource):
         It can return the information either as a list of `EsriFeatureServiceBasicInfo`
         objects or as a pandas DataFrame, depending on the `dataframe` parameter.
 
-        Parameters:
+        Args:
             dataframe (bool): If True, returns the information as a pandas DataFrame.
                               If False, returns a list of `EsriFeatureServiceBasicInfo` objects.
 
@@ -194,7 +194,7 @@ class Grid3(SyncBaseDataSource):
         It can return the search results as a list of `EsriFeatureServiceBasicInfo`
         objects or as a pandas DataFrame, depending on the `dataframe` parameter.
 
-        Parameters:
+        Args:
             query (str): The query string to search for in the dataset names.
             dataframe (bool): If True, returns the search results as a pandas DataFrame.
                               If False, returns a list of `EsriFeatureServiceBasicInfo` objects.
@@ -244,7 +244,7 @@ class Grid3(SyncBaseDataSource):
         as an `EsriFeatureLayerInfo` object or as a pandas DataFrame, depending on the
         `dataframe` parameter.
 
-        Parameters:
+        Args:
             data_name (str): The name of the dataset to retrieve information about.
             dataframe (bool): If True, returns the information as a pandas DataFrame.
                               If False, returns an `EsriFeatureLayerInfo` object.
@@ -311,7 +311,7 @@ class Grid3(SyncBaseDataSource):
         or area of interest (aoi_geometry). It retrieves the filtered data and can return
         it as a GeoDataFrame, a preview map, or as a list of feature dictionaries.
 
-        Parameters:
+        Args:
             data_name (str): The name of the dataset to filter.
             state (Optional[str]): The name of the Nigerian state to filter by (if applicable).
             bbox (Optional[List[float]]): The bounding box to filter by, defined as [xmin, ymin, xmax, ymax].

@@ -103,7 +103,7 @@ def docs():
     Launches the documentation website.
     """
     print("Opening documentation website ...")
-    typer.launch("https://jeafreezy.github.io/nigeria_geodata/latest/")
+    typer.launch("https://jeafreezy.github.io/nigeria_geodata")
 
 
 # LIST DATA

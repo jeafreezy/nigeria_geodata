@@ -1,8 +1,9 @@
 from functools import lru_cache
 import datetime
-from typing import Any, Dict, Tuple
+from typing import TYPE_CHECKING, Any, Dict, Tuple
 
-from shapely import Polygon
+if TYPE_CHECKING:
+    from shapely import Polygon
 
 from nigeria_geodata.config import Config
 from nigeria_geodata.datasources.base import DataSource
@@ -74,7 +75,7 @@ class GeodataUtils:
         return esri_type
 
     @staticmethod
-    def geojson_to_esri_json(geojson_data: Polygon):
+    def geojson_to_esri_json(geojson_data: "Polygon"):
         """
         Convert a GeoJSON geometry type to an ESRI JSON.
         """

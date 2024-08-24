@@ -18,7 +18,7 @@ from nigeria_geodata.utils.exceptions import (
 def get_headers() -> Dict[str, str]:
     from nigeria_geodata import __version__
 
-    return {"user-agent": f"nigeria_geodata/{__version__}"}
+    return {"user-agent": f"nigeria_geodata/v-{__version__}"}
 
 
 def make_request(

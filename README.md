@@ -17,8 +17,6 @@
 
 ---
 
-##### todo - replace with actual url, same with mkdocs
-
 **Documentation**: <a href="https://jeafreezy.github.io/nigeria_geodata" target="_blank">https://jeafreezy.github.io/nigeria_geodata/</a>
 
 **Source Code**: <a href="https://github.com/jeafreezy/nigeria_geodata" target="_blank">https://github.com/jeafreezy/nigeria_geodata</a>

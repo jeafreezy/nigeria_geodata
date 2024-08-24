@@ -7,4 +7,4 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## v0.1.0 - 2024-08-24
 
-- Initial release with core features. See [documentation](https://jeafreezy.github.io/nigeria_geodata/latest/) for more information.
+- Initial release with core features. See [documentation](https://jeafreezy.github.io/nigeria_geodata/) for more information.

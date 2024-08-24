@@ -1,5 +1,25 @@
 """
-API module for nigeria_geodata
+API module for nigeria_geodata.
+
+This module handles HTTP requests to external services, particularly those involving
+geodata sources for Nigeria. It supports both GET and POST requests and includes
+custom exception handling for request errors, HTTP status errors, and JSON decoding errors.
+
+Authors:
+    Emmanuel Jolaiya
+    Samuel Adedoyin
+
+Date:
+    24/08/2024
+
+Modules:
+    - `make_request`: Sends HTTP requests (GET or POST) to specified service URLs.
+
+Dependencies:
+    - httpx: Used for handling asynchronous HTTP requests.
+    - logger: For logging request and response details.
+    - enums: Provides enumerations for request methods (GET, POST).
+    - exceptions: Custom exception handling for errors such as request failures, HTTP errors, and JSON decoding issues.
 """
 
 import json
@@ -27,7 +47,31 @@ def make_request(
     method: RequestMethod = RequestMethod.GET,
 ) -> Dict[str, Any]:
     """
-    Handles the making of request to the datasource.
+    Sends an HTTP request to a specified service URL and handles the response.
+
+    Args:
+        service_url (str): The URL of the service to which the request will be sent.
+        params (Dict[str, str], optional): A dictionary of parameters to include in the request.
+                                           Defaults to an empty dictionary.
+        method (RequestMethod, optional): The HTTP request method (GET or POST).
+                                          Defaults to RequestMethod.GET.
+
+    Returns:
+        Dict[str, Any]: The JSON response data as a Python dictionary.
+
+    Raises:
+        RequestError: If an error occurs while making the HTTP request.
+        HTTPStatusError: If the server responds with a non-2xx status code.
+        JSONDecodeError: If the response cannot be parsed as valid JSON.
+
+    Example:
+        >>> make_request("https://example.com/api", {"q": "search_term"})
+        {'result': 'some_data'}
+
+    Notes:
+        - The function uses `httpx.Client` to send HTTP requests.
+        - The request method can be GET or POST, based on the `RequestMethod` enum.
+        - In case of an error, custom exceptions are raised with informative messages.
     """
     try:
         headers = get_headers()

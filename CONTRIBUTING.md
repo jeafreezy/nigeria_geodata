@@ -62,7 +62,7 @@ We expect all contributors to follow our [Code of Conduct](https://github.com/je
 
 ### Development Setup
 
-1. **Install Dependencies**: Follow the instructions in the [README.md](link-to-readme) file to set up your development environment.
+1. **Install Dependencies**: Follow the instructions in the [README.md](https://github.com/jeafreezy/nigeria_geodata/blob/main/README.md) file to set up your development environment.
 2. **Run Tests**: Ensure all tests pass before submitting a pull request:
    ```bash
    python tests

@@ -3,24 +3,27 @@ repo_name: jeafreezy/nigeria_geodata
 repo_url: https://github.com/jeafreezy/nigeria_geodata
 site_description: Fast and efficient access to geospatial data for Nigeria.
 site_author: Emmanuel Jolaiya & Samuel Adedoyin
-site_url: https://nigeria_geodata.github.io
+site_url: https://jeafreezy.github.io/nigeria_geodata/
 docs_dir: docs
 
 nav:
-  - Nigeria Geodata:
-      "index.md"
+  - Nigeria Geodata: "index.md"
 
-      # Todo - add more examples and jupyter notebook
+  - Examples:
+      - examples/usage.md
+      - examples/geodata.md
+  - Command Line Interface (CLI):
+      - cli/index.md
+
+
   - API Reference:
       - Data Sources:
-          - GRID3:
-              - api/datasources/grid3/sync.md
-              - api/datasources/grid3/async.md
+          - api/datasources/grid3/sync.md
+          - api/datasources/grid3/async.md
       - Utils:
           - api/utils/logging.md
           - api/utils/enums.md
           - api/utils/exceptions.md
-
   - Benchmark: "benchmark.md"
 
 watch:
@@ -71,6 +74,7 @@ plugins:
   - search
   - social
   - mkdocstrings
+  - termynal
 
 markdown_extensions:
   - pymdownx.highlight:

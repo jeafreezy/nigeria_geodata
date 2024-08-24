@@ -1,10 +1,9 @@
 # Nigeria Geodata
 
-TODO - LOGO
-
-<p align="center">
-    <em> A Python library for fast and efficient access to geospatial data for Nigeria.</em>
-</p>
+<div style="text-align: center;">
+    <img src="./assets/temp_logo.png" alt="Temporary logo" />
+    <p><em>A Python library for fast and efficient access to geospatial data for Nigeria.</em></p>
+</div>
 
 [![PyPI][pypi_badge]][pypi_link]
 [![open_in_colab][colab_badge]][colab_notebook_link]
@@ -59,22 +58,31 @@ Create and activate a virtual environment and then install nigeria_geodata:
 
 To install the lightweight version using pip:
 
+<!-- termynal -->
+
 ```py
 pip install nigeria-geodata
+---> 100%
 ```
 
 This version will return all the data as Python objects, mostly as a list, and list of dicts.
 
 To install it with `typer`, `lonboard` and `geopandas`:
 
+<!-- termynal -->
+
 ```py
 pip install nigeria-geodata['standard']
+---> 100%
 ```
 
-This version will allow you to get the data as a dataframe, geodataframe, or an interactive mapview.
+This version will allow you to get the data as a dataframe, geodataframe, or an interactive map.
+
+<!-- termynal -->
 
 ```py
 pip install nigeria-geodata['cli']
+---> 100%
 ```
 
 This version provides CLI support for the package. It is also lightweight -- It will return the data as pure Python objects.
@@ -83,20 +91,22 @@ This version provides CLI support for the package. It is also lightweight -- It 
 
 For the simplest usecase, search for all the available health care data in Nigeria.
 
+<!-- termynal -->
+
 ```py
-# Sync
 from nigeria_geodata import Grid3, AsyncGrid3
+# Sync
 search_results = Grid3().search("health")
-search_results
+print(search_results)
 # this will return a dataframe with all the available health care datasets.
 
 # Async
 search_results = await AsyncGrid3().search("health")
-search_results
+print(search_results)
 # this will return a dataframe with all the available health care datasets.
 ```
 
-Under the hood, this makes an api request to the GRID3 database to get the datasets. Refer to the documentation and examples for more use cases.
+Under the hood, this makes an api request to the GRID3 database to get the datasets. Refer to the **documentation** and **examples** for more use cases.
 
 ## Acknowledgment
 

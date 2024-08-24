@@ -98,7 +98,7 @@ def render_as_table(data: List[Dict[str, Any]], title: str):
 
 # DOCS
 @app.command("docs")
-def docs():
+def documentation():
     """
     Launches the documentation website.
     """

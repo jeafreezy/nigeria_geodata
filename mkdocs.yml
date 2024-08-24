@@ -25,6 +25,7 @@ nav:
           - api/utils/enums.md
           - api/utils/exceptions.md
   - Benchmark: "benchmark.md"
+  - Changelog: "changelog.md"
 
 watch:
   - nigeria_geodata

@@ -28,7 +28,7 @@ Nigeria Geodata is a fast and efficient Python client for accessing geospatial d
 The key features are:
 
 - **High Performance**: Offers exceptional speed with both synchronous and asynchronous support to cater to different use cases and performance needs
-- **Map Visualization**: Provides smooth map visualization using the fast [lonboard](https://developmentseed.org/lonboard/latest/) library.
+- **Map Visualization**: Provides smooth map visualization using the fast [Lonboard](https://developmentseed.org/lonboard/latest/) library.
 - **Lightweight**: Minimal dependencies—just one required ([httpx](https://www.python-httpx.org/)), with optional extras available for additional features.
 - **User-Friendly**: Easy to use and learn; set up quickly with just a few lines of code.
 - **CLI Support**: Intuitive command-line interface built with Typer.
@@ -104,7 +104,7 @@ print(search_results)
 # this will return a dataframe with all the available health care datasets.
 ```
 
-Under the hood, this makes an api request to the GRID3 database to get the datasets. Refer to the **documentation** and **examples** for more use cases.
+Under the hood, this makes an api request to the GRID3 database to get the datasets. Refer to the **[documentation](https://jeafreezy.github.io/nigeria_geodata)** and **examples** for more use cases.
 
 ## Acknowledgment
 

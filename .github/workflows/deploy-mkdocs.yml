@@ -38,9 +38,6 @@ jobs:
       - name: Build and deploy MkDocs
         run: |
           poetry run mkdocs gh-deploy --force
-
-      - name: Clear MkDocs cache
-        run: rm -rf .cache
-
+          
       - name: Clean up
         run: rm -rf .cache

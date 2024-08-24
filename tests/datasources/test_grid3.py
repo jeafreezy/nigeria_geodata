@@ -1,9 +1,9 @@
 import pandas as pd
 from unittest.mock import MagicMock, patch
 import pytest
-from nigeria_geodata import Grid3, AsyncGrid3
 import geopandas as gpd
 
+from nigeria_geodata.datasources.grid3 import Grid3, AsyncGrid3
 from nigeria_geodata.models.common import (
     EsriFeatureServiceBasicInfo,
 )

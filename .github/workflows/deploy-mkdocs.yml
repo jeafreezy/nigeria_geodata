@@ -33,9 +33,7 @@ jobs:
           installer-parallel: true
 
       - name: Install dependencies and generate CLI docs
-        run: |
-          poetry install --with docs --no-interaction --no-root
-          poetry run typer nigeria_geodata.cli utils docs --output docs/cli/index.md
+        run: poetry install --with docs --no-interaction --no-root
 
       - name: Commit and Push CLI Documentation Changes
         run: |

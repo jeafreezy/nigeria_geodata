@@ -163,13 +163,13 @@ class Grid3(SyncBaseDataSource):
             # return it as a list of dict
             return [x.__dict__ for x in search_results]
         print(
-            f"Search query for '{query}' did not match any available datasets. Use `Grid3().list_data()` to see available datasets."
+            f"Search query for '{query}' did not match any available datasets. Try another query or use `Grid3().list_data()` to see available datasets."
         )
         return []
 
     def info(
         self, data_name: str, dataframe: bool = True
-    ) -> Union[EsriFeatureLayerInfo, Optional["pd.DataFrame"]]:
+    ) -> Union[EsriFeatureLayerInfo, Optional["pd.DataFrame"], Dict[str, Any]]:
         """
         Connect to a FeatureServer and retrieve more information about it.
 
@@ -230,6 +230,7 @@ class Grid3(SyncBaseDataSource):
         bbox: Optional[List[float]] = None,
         aoi_geometry: Geometry = None,
         preview: bool = False,
+        geodataframe: bool = True,
     ) -> Union[
         Optional["gpd.GeoDataFrame"],
         Optional["Map"],
@@ -331,16 +332,18 @@ class Grid3(SyncBaseDataSource):
             if len(features) < feature_service["maxRecordCount"]:
                 break
 
-        if len(result_list) > 0:
-            gpd = CheckDependencies.geopandas()
-            gdf = gpd.GeoDataFrame.from_features(
-                result_list, crs=f"EPSG:{feature_service['spatialReference']['wkid']}"
-            )
-            if preview:
-                viz = CheckDependencies.lonboard()
-                return viz(gdf)
-            # otherwise return the gdf
-            return gdf
+        if geodataframe or preview:
+            if len(result_list) > 0:
+                gpd = CheckDependencies.geopandas()
+                gdf = gpd.GeoDataFrame.from_features(
+                    result_list,
+                    crs=f"EPSG:{feature_service['spatialReference']['wkid']}",
+                )
+                if preview:
+                    viz = CheckDependencies.lonboard()
+                    return viz(gdf)
+                # otherwise return the gdf
+                return gdf
         return result_list
 
     def __repr__(self) -> str:
@@ -382,6 +385,7 @@ class AsyncGrid3(AsyncBaseDataSource):
         bbox: Optional[List[float]] = None,
         aoi_geometry: Geometry = None,
         preview: bool = False,
+        geodataframe: bool = False,
     ) -> Union[
         Optional["gpd.GeoDataFrame"],
         Optional["Map"],
@@ -398,7 +402,7 @@ class AsyncGrid3(AsyncBaseDataSource):
 
     async def info(
         self, data_name: str, dataframe: bool = True
-    ) -> Union[EsriFeatureLayerInfo, Optional["pd.DataFrame"]]:
+    ) -> Union[EsriFeatureLayerInfo, Optional["pd.DataFrame"], Dict[str, Any]]:
         """Get information about the dataset
 
         Returns:

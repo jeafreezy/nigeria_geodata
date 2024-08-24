@@ -71,7 +71,7 @@ pre-commit = "^3.4.0"
 pytest = "^8.3.2"
 pandas = "^2"
 geopandas = ">=0.13"
-pytest-asyncio = "^0.23.8"
+pytest-asyncio = ">=0.23.8,<0.25.0"
 mkdocstrings = { extras = ["crystal", "python"], version = "^0.25.2" }
 lonboard = "^0.9.3"
 typer = { extras = ["all"], version = "^0.12.4" }

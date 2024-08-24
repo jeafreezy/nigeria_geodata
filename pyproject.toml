@@ -42,6 +42,9 @@ exclude = [
   "CONTRIBUTING.md",
 ]
 
+[tool.poetry.scripts]
+nigeria-geodata = "nigeria_geodata.cli:app"
+
 [tool.poetry.dependencies]
 # core dependencies
 python = "^3.8"
@@ -49,7 +52,7 @@ httpx = "^0.27.0"
 # optional dependencies
 lonboard = { version = "^0.9.3", optional = true }
 geopandas = { version = ">=0.13", optional = true }
-typer = { version = "^0.12.4", optional = true }
+typer = { extras = ["all"], version = "^0.12.4", optional = true }
 
 
 [tool.poetry.extras]
@@ -67,6 +70,7 @@ pytest-asyncio = "^0.23.8"
 mkdocstrings = { extras = ["crystal", "python"], version = "^0.25.2" }
 lonboard = "^0.9.3"
 mike = "^2.1.3"
+typer = { extras = ["all"], version = "^0.12.4" }
 
 
 [tool.poetry.group.docs.dependencies]

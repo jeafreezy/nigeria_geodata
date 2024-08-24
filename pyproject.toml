@@ -5,7 +5,7 @@ description = "Fast and efficient access to geospatial data for Nigeria. Ideal f
 license = "LICENSE"
 authors = ["Emmanuel Jolaiya <jolaiyaemmanuel@gmail.com>"]
 readme = "README.md"
-keywords = ["Nigeria", "geodata", "Grid3", "geospatial"]
+keywords = ["Nigeria", "geodata", "GRID3", "geospatial"]
 classifiers = [
   "Topic :: Software Development :: Libraries :: Python Modules",
   "Intended Audience :: Information Technology",

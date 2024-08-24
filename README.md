@@ -35,7 +35,7 @@ The key features are:
 - **Lightweight**: Minimal dependencies—just one required ([httpx](https://www.python-httpx.org/)), with optional extras available for additional features.
 - **User-Friendly**: Easy to use and learn; set up quickly with just a few lines of code.
 - **CLI Support**: Intuitive command-line interface built with Typer.
-- **Real-Time Data**: Fetches up-to-date data directly from the [Grid3](https://grid3.org/) database (more to come!), ensuring you always work with the latest information.
+- **Real-Time Data**: Fetches up-to-date data directly from the [GRID3](https://grid3.org/) database (more to come!), ensuring you always work with the latest information.
 - **Advanced Filtering**: Allows for precise filtering based on state names (e.g FCT, Lagos), bounding boxes (bbox), and areas of interest (AOI).
 
 ## Dependency
@@ -96,11 +96,11 @@ search_results
 # this will return a dataframe with all the available health care datasets.
 ```
 
-Under the hood, this makes an api request to the Grid3 database to get the datasets. Refer to the documentation and examples for more use cases.
+Under the hood, this makes an api request to the GRID3 database to get the datasets. Refer to the documentation and examples for more use cases.
 
 ## Acknowledgment
 
-In addition to the great libraries we're resting upon, we would also like to thank [Grid3](https://grid3.org/) for providing real-time and comprehensive geospatial data that powers this library.
+In addition to the great libraries we're resting upon, we would also like to thank [GRID3](https://grid3.org/) for providing real-time and comprehensive geospatial data that powers this library.
 
 ## License
 

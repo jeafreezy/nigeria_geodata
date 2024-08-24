@@ -13,7 +13,7 @@ nav:
       # Todo - add more examples and jupyter notebook
   - API Reference:
       - Data Sources:
-          - Grid3:
+          - GRID3:
               - api/datasources/grid3/sync.md
               - api/datasources/grid3/async.md
       - Utils:

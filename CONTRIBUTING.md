@@ -1,84 +1,99 @@
-# Contributing to nigeria_geodata
+# Contributing
 
-We’re excited that you want to contribute to nigeria_geodata! By participating, you’re helping to improve this project for everyone. 
+Thank you for your interest in contributing to _nigeria_geodata_. If you're a developer, you can skip to the [development](#development) section.
 
-> And if you like the project, but just don't have time to contribute, that's fine. There are other easy ways to support the project and show your appreciation, which we would also be very happy about:
-> - Star the project
-> - Tweet about it
-> - Refer this project in your project's readme
-> - Mention the project at local meetups and tell your friends/colleagues
+## General
 
-To ensure a smooth process, please follow the guidelines outlined below.
+If you're not a developer or you don't have the time to contribute, here are other easy ways to support the project:
 
+- Star the project.
+- Tweet about it or promote it on social media.
+- Use it in your project.
+- Mention the project at your organization, conference, articles, or tell your friends/colleagues about it.
 
-## Table of Contents
-1. [How to Contribute](#how-to-contribute)
-   - [Reporting Issues](#reporting-issues)
-   - [Contributing Code](#contributing-code)
-   - [Code of Conduct](#code-of-conduct)
-   - [Development Setup](#development-setup)
-   - [Documentation](#documentation)
-2. [Helpful Links](#helpful-links)
-3. [Questions?](#questions)
+## Development
 
+### Clone the project
 
-## How to Contribute
-
-### Reporting Issues
-
-1. **Search Existing Issues**: Before opening a new issue, please check our [existing issues](https://github.com/jeafreezy/nigeria_geodata/issues) to see if your problem has already been reported or addressed.
-2. **Open a New Issue**: If you don’t find a matching issue, you can open a new one. Provide a clear and descriptive title, and include:
-   - A summary of the issue
-   - Steps to reproduce the problem
-   - Any relevant error messages or screenshots
-   - Your environment details (e.g., operating system, browser version)
-
-### Contributing Code
-
-1. **Fork the Repository**: Click the "Fork" button at the top right of this page to create a copy of the repository in your own GitHub account.
-2. **Clone Your Fork**: Clone the forked repository to your local machine:
-   ```bash
+```bash
+   # clone the repo
    git clone https://github.com/jeafreezy/nigeria_geodata.git
-   ```
-3. **Create a New Branch**: Create a new branch for your changes:
-   ```bash
-   git checkout -b feature/your-feature
-   ```
-4. **Make Your Changes**: Implement your changes on the new branch. Follow our coding style and guidelines.
-5. **Write Tests**: If applicable, write tests to ensure that your changes work as expected and do not break existing functionality.
-6. **Commit Your Changes**: Commit your changes with a descriptive message:
-   ```bash
-   git add .
-   git commit -m "Describe your changes here"
-   ```
-7. **Push Your Changes**: Push your changes to your forked repository:
-   ```bash
-   git push origin feature/your-feature
-   ```
-8. **Open a Pull Request**: Go to the original repository and open a pull request from your branch. Provide a clear description of your changes and link to any related issues.
 
-### Code of Conduct
-We expect all contributors to follow our [Code of Conduct](https://github.com/jeafreezy/nigeria_geodata/blob/main/CODE_OF_CONDUCT.md). Our goal is to provide a welcoming and inclusive environment for everyone.
+   # enter the project directory
+   cd nigeria_geodata
+```
 
-### Development Setup
+### Python
 
-1. **Install Dependencies**: Follow the instructions in the [README.md](https://github.com/jeafreezy/nigeria_geodata/blob/main/README.md) file to set up your development environment.
-2. **Run Tests**: Ensure all tests pass before submitting a pull request:
-   ```bash
-   python tests
-   ```
+This project is developed with **Python 3.8.1** and uses [Poetry](https://python-poetry.org/) to manage Python dependencies.
+
+After cloning the project and installing Poetry, run:
+
+```bash
+   poetry install
+```
+
+to install all dependencies.
+
+### Pre-commit
+
+This repo is set to use pre-commit to run the following hooks: check-yaml, end-of-file-fixer, trailing-whitespace, [Ruff](https://docs.astral.sh/ruff/) ("An extremely fast Python linter and code formatter, written in Rust.") when committing new code.
+
+Run:
+
+```bash
+   pre-commit install
+```
+to install the pre-commit hooks.
+
+In case you run into errors, it is likely that you haven't installed the dev dependencies. In this case, you can run the command below to install them, then you can retry the command above again.
+
+```bash
+   poetry install --with dev
+```
+
+### Tests
+
+This project uses [Pytest](https://docs.pytest.org/en/stable/) for testing. Run the command below to run the tests:
+
+```python
+   pytest
+```
+
+
+In case you run into errors, it is likely that you haven't installed the dev dependencies. In this case, you can run the command below to install them, then you can retry the command above again.
+
+```bash
+   poetry install --with dev
+```
 
 ### Documentation
-Update the documentation if your changes affect how the project is used or configured. Documentation changes should be made in the same pull request as code changes.
 
-### Helpful Links
+The documentation website is generated with [mkdocs-material](https://squidfunk.github.io/mkdocs-material/). After poetry install, you can serve the docs website locally with:
+
+```bash
+   poetry run mkdocs serve
+```
+
+In case you run into errors, it is likely that you haven't installed the docs dependencies. In this case, you can run the command below to install them, then you can retry the command above again.
+
+```bash
+   poetry install --with docs
+```
+
+### CI-CD & Publishing
+
+This project uses GitHub Actions for automated tests and deployment. The `.github/workflows` folder comprise of three major workflows:
+1. `deploy-mkdocs.yml` : It handles the automated deployment of the documentation site. It is triggered on every push to the main branch.
+2. `release.yml`: It handles the release of the package to [PyPI](https://pypi.org/). It happens when a tag with `v*` is set and pushed to the main branch.
+3. `tests.yml`: It runs on every pull requests and push to the main branch. It runs the test suites across major Python versions (3.8, 3.9, 3.10, 3.11).
+
+
+## Helpful Links
+
+Issues and pull requests are more than welcome:
+
 - [Project Documentation](https://jeafreezy.github.io/nigeria_geodata/)
 - [Issue Tracker](https://github.com/jeafreezy/nigeria_geodata/issues)
 - [Pull Requests](https://github.com/jeafreezy/nigeria_geodata/pulls)
 - [Code of Conduct](https://github.com/jeafreezy/nigeria_geodata/blob/main/CODE_OF_CONDUCT.md)
-
-## Questions?
-
-If you have any questions or need assistance, please open an issue or contact us at jolaiyaemmanuel@gmail.com.
-
-Thank you for helping to improve nigeria_geodata!

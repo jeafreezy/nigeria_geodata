@@ -111,3 +111,4 @@ deployment/k8s/titiler/values-test.yaml
 
 
 libcairo.2.dylib
+.DS_Store
